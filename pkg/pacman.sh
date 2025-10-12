@@ -1,0 +1,20 @@
+# Pacman macros.
+alias app-upgrade='sudo pacman -Syu'
+alias app-install='sudo pacman -S'
+alias app-update='sudo pacman -Syyy'
+alias app-remove='sudo pacman -R'
+alias app-purge='sudo pacman -Rns'
+alias app-info='pacman -Si'
+alias app-iinfo='pacman -Qi'
+alias app-search='pacman -Ss'
+alias app-isearch='pacman -Qs'
+alias app-ccache='sudo pacman -Scc'
+alias app-cache='pacman -Qdt'
+alias app-files='pacman -Ql'
+alias app-list='pacman -Qe'
+
+# Yay macros
+alias yay-upgrade='yay -Syu'
+alias yay-install='yay -S'
+alias yay-update='yay -Syyy'
+alias yay-search='yay -Ss'
