@@ -34,11 +34,46 @@ if [[ -d $HOME/.local/bin ]]; then
 	export PATH=$PATH:$PYTHON_LOCAL/bin
 fi
 
-if [[ -d $HOME/.colima ]]; then
-	export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+## Node Version Manager (NVM)
+if [[ -d $HOME/.nvm ]]; then
+	export NVM_DIR="$HOME/.nvm"
+	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+fi
+
+## Go Version Manager (GVM)
+if [[ -d $HOME/.gvm ]]; then
+	[[ -s "/home/kjokken/.gvm/scripts/gvm" ]] && source "/home/kjokken/.gvm/scripts/gvm"
+fi
+
+## SDKMan (Java SDK manager)
+if [[ -d $HOME/.sdkman ]]; then
+	export SDKMAN_DIR="$HOME/.sdkman"
+	[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+fi
+
+## PNPM (Another node package manager)
+if [[ -d $HOME/.local/share/pnpm ]]; then
+	export PNPM_HOME="$HOME/.local/share/pnpm"
+	export PATH=$PNPM_HOME:$PATH
 fi
 
 if [ "$(uname)" = "Darwin" ]; then
 	# Libpq keg-only
 	export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
+	## Colima
+	if [[ -d $HOME/.colima ]]; then
+		export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+	fi
+
+	## Android SDK
+	if [[ -d $HOME/Library/Android/sdk ]]; then
+		export ANDROID_HOME=$HOME/Library/Android/sdk
+		export PATH=$PATH:$ANDROID_HOME/emulator
+		export PATH=$PATH:$ANDROID_HOME/tools
+		export PATH=$PATH:$ANDROID_HOME/tools/bin
+		export PATH=$PATH:$ANDROID_HOME/platform-tools
+		export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+	fi
 fi
