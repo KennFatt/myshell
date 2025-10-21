@@ -5,6 +5,7 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 ## NextJS
 ## @see https://nextjs.org/telemetry
 export NEXT_TELEMETRY_DISABLED=1
+export NEXT_TURBOPACK_EXPERIMENTAL_USE_SYSTEM_TLS_CERTS=0
 
 ## Deno
 if [[ -d $HOME/.deno ]]; then
