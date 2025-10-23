@@ -29,6 +29,11 @@ if [[ -d $HOME/.config/composer ]]; then
 	export PATH=$PATH:$HOME/.config/composer/vendor/bin
 fi
 
+# Podman as a docker
+if [[ -f $podman_bin ]]; then
+	export DOCKER_HOST=unix:///run/user/1000/podman/podman.sock
+fi
+
 ## Python
 if [[ -d $HOME/.local/bin ]]; then
 	export PYTHON_LOCAL=$HOME/.local

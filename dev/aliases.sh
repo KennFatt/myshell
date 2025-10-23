@@ -5,6 +5,14 @@ alias src-asm='gcc -S $1 -o _src_asm.s'
 # Code with code-insiders
 alias code-here="code-insiders . &; sleep 0.5; disown; exit;"
 
+# Podman as docker
+if [[ -f $podman_bin ]]; then
+    alias docker=podman
+fi
+if [[ -f $podman_compose_bin ]]; then
+    alias docker-compose=podman-compose
+fi
+
 # Android emulator
 if [[ -d $ANDROID_HOME ]]; then
 	alias android-device-list='emulator -list-avds'
