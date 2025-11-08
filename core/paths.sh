@@ -7,6 +7,7 @@ if [ "$(uname)" = "Linux" ]; then
 	readonly git_bin=/usr/bin/git
 	readonly podman_bin=/usr/bin/podman
 	readonly podman_compose_bin=/usr/bin/podman-compose
+	readonly ufw_bin=/usr/sbin/ufw
 elif [ "$(uname)" = "Darwin" ]; then
 	readonly pigz_bin=/opt/homebrew/bin/pigz
 	readonly ncdu_bin=/opt/homebrew/bin/ncdu
