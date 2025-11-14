@@ -49,7 +49,7 @@ fi
 
 ## Go Version Manager (GVM)
 if [[ -d $HOME/.gvm ]]; then
-	[[ -s "/home/kjokken/.gvm/scripts/gvm" ]] && source "/home/kjokken/.gvm/scripts/gvm"
+	[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
 fi
 
 ## SDKMan (Java SDK manager)
