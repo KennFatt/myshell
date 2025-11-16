@@ -232,3 +232,27 @@ if [ "$(uname)" = "Linux" ]; then
 		fi
 	}
 fi
+
+wgkey() {
+  if [ -z "$1" ]; then
+    echo "Usage: wgkey <client-name>"
+    return 1
+  fi
+
+  local name="$1"
+
+  wg genkey | (umask 0077 && tee "${name}.key") | wg pubkey > "${name}.pub"
+
+  echo "Generated: ${name}.key and ${name}.pub"
+}
+
+wgqr() {
+  if [ -z "$1" ]; then
+    echo "Usage: wgqr <client-config>"
+    return 1
+  fi
+
+  local file="$1"
+
+  qrencode -t ansiutf8 -r "$file"
+}
