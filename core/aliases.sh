@@ -10,7 +10,8 @@ alias egrep='egrep --color=auto'
 alias cls='clear; ls'
 
 # Time
-alias now='date +%s'
+# alias now='date +%s'
+alias now="node -e 'console.log(Date.now())'"
 
 # System info
 alias sf='clear; fastfetch'
