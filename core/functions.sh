@@ -115,13 +115,9 @@ EOF
 		systemctl --user daemon-reload
 		systemctl --user enable --now "${name}.service"
 
-		# echo "✅ Service created & started: ${name}.service"
 		echo "✅ Service created & started: ${service_path}"
 		echo "📜 View logs: journalctl --user -u ${name}.service -f"
 		echo "📂 Workdir: $workdir"
-		# echo "✨ Dont forget to:"
-		# echo "systemctl --user daemon-reload"
-		# echo "systemctl --user enable --now \"${name}.service\""
 
 		[[ -f "$envfile" ]] && echo "🌿 Loaded env file: $envfile"
 		[[ "$sandbox" == "yes" ]] && echo "🛡 Sandbox enabled"

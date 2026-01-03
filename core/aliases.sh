@@ -39,7 +39,12 @@ fi
 if [ "$(uname)" = "Linux" ]; then
 	# System info
 	alias cpuinfo="watch -n1 'cat /proc/cpuinfo | grep MHz'"
-	alias meminfo="watch -n1 'free -mh'"
+	alias meminfo='watch -n1 "awk '\'' 
+/MemTotal/ { total=\$2 }
+/(Cached|Buffers|MemAvailable|MemTotal|SwapTotal|SwapFree)/ {
+  printf \"%-15s %8.1f MB %7.2f%%\\n\", \$1, \$2/1024, (\$2/total)*100
+}
+'\'' /proc/meminfo | column -t"'
 
 	# I/O Monitoring
 	alias iotop='sudo iotop'
