@@ -7,14 +7,18 @@ alias code-here="code-insiders --no-proxy-server . &; sleep 0.5; disown; exit;"
 
 # Podman as docker
 if [[ -f $podman_bin ]]; then
-    alias docker=podman
+	alias docker=podman
 fi
 if [[ -f $podman_compose_bin ]]; then
-    alias docker-compose=podman-compose
+	alias docker-compose=podman-compose
 fi
 
 # Android emulator
 if [[ -d $ANDROID_HOME ]]; then
 	alias android-device-list='emulator -list-avds'
 	alias android-device-run='emulator -avd $1'
+fi
+
+if [ "$(uname)" = "Darwin" ]; then
+	alias clipboard-to-json='pbpaste | python3 "$HOME/.myshell/scripts/json_to_block_comment.py"'
 fi

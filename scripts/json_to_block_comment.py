@@ -1,0 +1,25 @@
+import json
+import sys
+
+def json_to_js_block_comment(data: dict) -> str:
+    pretty_json = json.dumps(data, indent=2)
+    lines = pretty_json.splitlines()
+
+    comment_lines = ["/**"]
+    comment_lines.extend(f" * {line}" for line in lines)
+    comment_lines.append(" */")
+
+    return "\n".join(comment_lines)
+
+
+if __name__ == "__main__":
+    """
+    Usage:
+      python json_to_block_comment.py < input.json
+    """
+
+    raw_input = sys.stdin.read()
+    parsed = json.loads(raw_input)
+
+    print(json_to_js_block_comment(parsed))
+
