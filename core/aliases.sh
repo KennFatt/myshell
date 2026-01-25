@@ -16,9 +16,10 @@ alias now="node -e 'console.log(Date.now())'"
 # System info
 alias sf='clear; fastfetch'
 alias topmem='sudo top -o +%MEM'
+alias inxi='inxi -Fxz'
 
 # Network monitoring
-alias iftop='sudo iftop -i eth0 -B'
+alias iftop='sudo iftop -i enp1s0 -B'
 alias lsport='sudo lsof -i -P -n'
 
 if [[ -f $ufw_bin ]]; then
