@@ -5,6 +5,8 @@ alias src-asm='gcc -S $1 -o _src_asm.s'
 # Code with code-insiders
 alias code-here="code-insiders --no-proxy-server . &; sleep 0.5; disown; exit;"
 
+alias chad='claude'
+
 # Podman as docker
 if [[ -f $podman_bin ]]; then
 	alias docker=podman
