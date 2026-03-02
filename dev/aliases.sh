@@ -2,8 +2,8 @@
 alias obj-asm='objdump -S --disassemble $1 > $1_obj_asm.s'
 alias src-asm='gcc -S $1 -o _src_asm.s'
 
-# Code with code-insiders
-alias code-here="code-insiders --no-proxy-server . &; sleep 0.5; disown; exit;"
+# Code with ag
+alias code-here="agy --no-proxy-server . &; sleep 0.5; disown; exit;"
 
 alias chad='claude'
 
