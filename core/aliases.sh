@@ -49,6 +49,11 @@ if [ "$(uname)" = "Linux" ]; then
 
 	# I/O Monitoring
 	alias iotop='sudo iotop'
+
+	# SFTP user management
+	alias user-create='f() { sudo useradd -m -s /usr/sbin/nologin "$1" && sudo passwd "$1"; }; f'
+	alias user-remove='f() { sudo deluser --remove-home "$1"; }; f'
+	alias user-list='grep "/nologin" /etc/passwd | cut -d: -f1'
 fi
 
 if [ "$(uname)" = "Darwin" ]; then
