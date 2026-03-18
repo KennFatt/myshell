@@ -8,6 +8,7 @@ if [ "$(uname)" = "Linux" ]; then
 	readonly podman_bin=/usr/bin/podman
 	readonly podman_compose_bin=/usr/bin/podman-compose
 	readonly ufw_bin=/usr/sbin/ufw
+	readonly nvim_bin=/usr/bin/nvim
 elif [ "$(uname)" = "Darwin" ]; then
 	readonly pigz_bin=/opt/homebrew/bin/pigz
 	readonly ncdu_bin=/opt/homebrew/bin/ncdu
@@ -18,6 +19,7 @@ elif [ "$(uname)" = "Darwin" ]; then
 	readonly ps_bin=/usr/bin/ps
 	readonly wrk_bin=/opt/homebrew/bin/wrk
 	readonly git_bin=/usr/bin/git
+	readonly nvim_bin=/opt/homebrew/bin/nvim
 fi
 
 readonly jest_bin=./node_modules/jest/bin/jest.js
