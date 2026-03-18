@@ -15,8 +15,8 @@ fi
 
 ## Bun
 if [[ -d $HOME/.bun ]]; then
-    export BUN_INSTALL="$HOME/.bun"
-    export PATH=$BUN_INSTALL/bin:$PATH
+	export BUN_INSTALL="$HOME/.bun"
+	export PATH=$BUN_INSTALL/bin:$PATH
 fi
 
 ## Rust (cargo)
@@ -74,10 +74,7 @@ if [ "$(uname)" = "Darwin" ]; then
 	# Libpq keg-only
 	export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
-	## Colima
-	if [[ -d $HOME/.colima ]]; then
-		export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
-	fi
+	export DOCKER_HOST="unix://$HOME/.docker/run/docker.sock"
 
 	## Android SDK
 	if [[ -d $HOME/Library/Android/sdk ]]; then
