@@ -40,6 +40,11 @@ if [[ -f $podman_bin ]]; then
 	export DOCKER_HOST=unix:///run/user/1000/podman/podman.sock
 fi
 
+# OrbStack as a docker (MacOS)
+if [[ -x $orbstackctl_bin ]]; then
+	export DOCKER_HOST="unix://$HOME/.orbstack/run/docker.sock"
+fi
+
 ## Python
 if [[ -d $HOME/.local/bin ]]; then
 	export PYTHON_LOCAL=$HOME/.local
@@ -73,8 +78,6 @@ fi
 if [ "$(uname)" = "Darwin" ]; then
 	# Libpq keg-only
 	export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
-
-	export DOCKER_HOST="unix://$HOME/.docker/run/docker.sock"
 
 	## Android SDK
 	if [[ -d $HOME/Library/Android/sdk ]]; then

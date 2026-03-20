@@ -20,6 +20,7 @@ elif [ "$(uname)" = "Darwin" ]; then
 	readonly wrk_bin=/opt/homebrew/bin/wrk
 	readonly git_bin=/usr/bin/git
 	readonly nvim_bin=/opt/homebrew/bin/nvim
+	readonly orbstackctl_bin=/usr/local/bin/orbctl
 fi
 
 readonly jest_bin=./node_modules/jest/bin/jest.js
