@@ -27,6 +27,55 @@ function procmem() {
 	$ps_bin -eo pid,rss,comm | grep -i $1
 }
 
+mytemplate() {
+	local templates_dir="$MYSPACE_HOME/templates"
+
+	if [ ! -d "$templates_dir" ]; then
+		echo "Error: templates directory not found: $templates_dir" >&2
+		return 1
+	fi
+
+	local usage="Usage:
+  mytemplate --list
+  mytemplate <template_name>
+  mytemplate <template_name> <new_name>"
+
+	if [ $# -eq 0 ]; then
+		echo "$usage" >&2
+		return 1
+	fi
+
+	if [ "$1" = "--list" ] || [ "$1" = "-l" ]; then
+		echo "Available templates in: $templates_dir"
+		ls -1h "$templates_dir"
+		return 0
+	fi
+
+	local src_name="$1"
+	local dst_name="${2:-$1}"
+	local src_path="$templates_dir/$src_name"
+	local dst_path="./$dst_name"
+
+	if [ ! -e "$src_path" ]; then
+		echo "Error: template not found: $src_name" >&2
+		return 1
+	fi
+
+	if [ -e "$dst_path" ]; then
+		echo "Error: destination already exists: $dst_name" >&2
+		return 1
+	fi
+
+	cp -R "$src_path" "$dst_path"
+
+	if [ $? -ne 0 ]; then
+		echo "Error: failed to copy template." >&2
+		return 1
+	fi
+
+	echo "Copied '$src_name' -> '$dst_name'"
+}
+
 if [ "$(uname)" = "Linux" ]; then
 	function service-dependencies() {
 		if [[ -z $1 ]]; then
@@ -62,7 +111,7 @@ if [ "$(uname)" = "Linux" ]; then
 		workdir=$(dirname "$(realpath "$cmd" 2>/dev/null)")
 		local envfile="$workdir/.env"
 
-		cat > "$service_path" <<EOF
+		cat >"$service_path" <<EOF
 [Unit]
 Description=$name service
 After=network-online.target
@@ -89,12 +138,12 @@ EOF
 
 		# Auto-load .env if exists
 		if [[ -f "$envfile" ]]; then
-			echo "EnvironmentFile=$envfile" >> "$service_path"
+			echo "EnvironmentFile=$envfile" >>"$service_path"
 		fi
 
 		# Optional Sandbox
 		if [[ "$sandbox" == "yes" ]]; then
-			cat >> "$service_path" <<EOF
+			cat >>"$service_path" <<EOF
 # Sandboxing
 NoNewPrivileges=true
 ProtectSystem=full
@@ -107,7 +156,7 @@ EOF
 		fi
 
 		# Finish file
-		cat >> "$service_path" <<EOF
+		cat >>"$service_path" <<EOF
 [Install]
 WantedBy=default.target
 EOF
