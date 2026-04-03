@@ -1,4 +1,5 @@
 export MYSPACE_HOME=$HOME/myspace
+export CODEX_HOME=$HOME/.codex
 
 # NVIM4life!
 if [[ -x $nvim_bin ]]; then

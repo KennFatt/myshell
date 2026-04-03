@@ -7,6 +7,7 @@ alias code-here="code-insiders --no-proxy-server . &; sleep 0.5; disown; exit;"
 alias agy-here="agy --no-proxy-server . &; sleep 0.5; disown; exit;"
 
 alias chad='claude'
+alias cx='codex'
 
 # Podman as docker
 if [[ -f $podman_bin ]]; then
