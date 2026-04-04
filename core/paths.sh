@@ -23,5 +23,6 @@ elif [ "$(uname)" = "Darwin" ]; then
 	readonly orbstackctl_bin=/usr/local/bin/orbctl
 fi
 
+readonly vim_bin=/usr/bin/vim
 readonly jest_bin=./node_modules/jest/bin/jest.js
 readonly node_bin=node
