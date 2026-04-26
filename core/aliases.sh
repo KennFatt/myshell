@@ -22,6 +22,9 @@ alias inxi='inxi -Fxz'
 alias iftop='sudo iftop -i enp1s0 -B'
 alias lsport='sudo lsof -i -P -n'
 
+# User level application
+alias garage='docker exec -it garage-s3_garage_1 /garage'
+
 if [[ -f $ufw_bin ]]; then
 	alias ufw-status='sudo ufw status verbose'
 	alias ufw-reload='sudo ufw reload'
