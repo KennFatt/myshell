@@ -74,7 +74,8 @@ git-cleanup-hs() {
 	echo "  remote branch: hs/$work_branch"
 	echo
 
-	read -r -p "Continue? [y/N] " confirm
+	printf "Continue? [y/N] "
+	read -r confirm
 	if [ "$confirm" != "y" ]; then
 		echo "Cancelled"
 		return 1
