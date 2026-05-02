@@ -20,15 +20,13 @@ git-clean-local-branches() {
 
   git for-each-ref --format='%(refname:short)' refs/heads/ |
   while IFS= read -r branch; do
-    # Never delete the currently checked-out branch
     if [ "$branch" = "$current_branch" ]; then
       continue
     fi
 
-    # Compare local branch name against remote branch with same name
     if ! git show-ref --verify --quiet "refs/remotes/$remote/$branch"; then
-      printf "Remove local branch '%s'? [y/N] " "$branch"
-      IFS= read -r answer
+      printf "Remove local branch '%s'? [y/N] " "$branch" > /dev/tty
+      IFS= read -r answer < /dev/tty
 
       case "$answer" in
         [yY]|[yY][eE][sS])
@@ -36,8 +34,8 @@ git-clean-local-branches() {
             echo "Deleted '$branch'."
           else
             echo "Branch '$branch' is not fully merged."
-            printf "Force delete '%s'? [y/N] " "$branch"
-            IFS= read -r force_answer
+            printf "Force delete '%s'? [y/N] " "$branch" > /dev/tty
+            IFS= read -r force_answer < /dev/tty
 
             case "$force_answer" in
               [yY]|[yY][eE][sS])
