@@ -2,6 +2,7 @@ sync-config-git() {
 	local repos=(
 		"$HOME/.myshell"
 		"$HOME/.pi"
+		"$MYSPACE_HOME"
 	)
 
 	local tmpdir
