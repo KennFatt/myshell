@@ -1,7 +1,3 @@
-export FILESTASH_URL=""
-export FILESTASH_TOKEN=""
-export FILESTASH_BASE_PATH=""
-
 # Usage:
 #   fs-put ./report.pdf
 #   fs-put ./report.pdf /uploads/report.pdf
