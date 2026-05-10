@@ -9,6 +9,8 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 alias cls='clear; ls'
 
+alias hs='ssh homeserver'
+
 # Time
 # alias now='date +%s'
 alias now="node -e 'console.log(Date.now())'"
