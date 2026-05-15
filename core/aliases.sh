@@ -21,7 +21,6 @@ alias topmem='sudo top -o +%MEM'
 alias inxi='inxi -Fxz'
 
 # Network monitoring
-alias iftop='sudo iftop -nP -i enp1s0 -B'
 alias lsport='sudo lsof -i -P -n'
 
 # User level application

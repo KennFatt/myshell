@@ -144,3 +144,93 @@ ipcaddy() {
   echo "=== Caddy config references to logs ==="
   sudo grep -RniE "log|output|access|error" /etc/caddy 2>/dev/null | head -100 || echo "No obvious Caddy log config found."
 }
+
+iftop() {
+  local iface="enp1s0"
+  local filters=()
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      -i|--interface)
+        if [ -z "$2" ]; then
+          echo "Missing interface after $1"
+          return 1
+        fi
+        iface="$2"
+        shift 2
+        ;;
+
+      -x|--exclude-host|--exclude-ip)
+        if [ -z "$2" ]; then
+          echo "Missing IP/host after $1"
+          return 1
+        fi
+        filters+=("not host $2")
+        shift 2
+        ;;
+
+      -xn|--exclude-net)
+        if [ -z "$2" ]; then
+          echo "Missing network after $1"
+          return 1
+        fi
+        filters+=("not net $2")
+        shift 2
+        ;;
+
+      -xp|--exclude-port)
+        if [ -z "$2" ]; then
+          echo "Missing port after $1"
+          return 1
+        fi
+        filters+=("not port $2")
+        shift 2
+        ;;
+
+      -h|--help)
+        cat <<'EOF'
+Usage:
+  iftop
+  iftop -i <interface>
+  iftop -x <ip-or-host>
+  iftop -xn <cidr-or-network>
+  iftop -xp <port>
+  iftop -i <interface> -x <ip> -xn <network> -xp <port>
+
+Examples:
+  iftop
+  iftop -i eth0
+  iftop -x 110.138.94.45
+  iftop -xn 192.168.1.0/24
+  iftop -xp 22
+  iftop -x 110.138.94.45 -xp 22
+  iftop -i eth0 -x 110.138.94.45 -xn 10.0.0.0/8 -xp 443
+
+Flags:
+  -i,  --interface      Interface to monitor. Default: enp1s0
+  -x,  --exclude-host   Exclude an IP or hostname
+       --exclude-ip     Same as --exclude-host
+  -xn, --exclude-net    Exclude a subnet/network
+  -xp, --exclude-port   Exclude a port
+EOF
+        return 0
+        ;;
+
+      *)
+        echo "Unknown option: $1"
+        echo "Run: iftop --help"
+        return 1
+        ;;
+    esac
+  done
+
+  if [ "${#filters[@]}" -gt 0 ]; then
+    local filter_expr
+    filter_expr="$(printf ' and %s' "${filters[@]}")"
+    filter_expr="${filter_expr# and }"
+
+    sudo command iftop -nP -i "$iface" -B -f "$filter_expr"
+  else
+    sudo command iftop -nP -i "$iface" -B
+  fi
+}
