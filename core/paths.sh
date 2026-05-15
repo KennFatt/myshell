@@ -1,28 +1,27 @@
-if [ "$(uname)" = "Linux" ]; then
-	readonly pigz_bin=/usr/bin/pigz
-	readonly ncdu_bin=/usr/bin/ncdu
-	readonly tar_bin=/usr/bin/tar
-	readonly ps_bin=/usr/bin/ps
-	readonly wrk_bin=/usr/bin/wrk
-	readonly git_bin=/usr/bin/git
-	readonly podman_bin=/usr/bin/podman
-	readonly podman_compose_bin=/usr/bin/podman-compose
-	readonly ufw_bin=/usr/sbin/ufw
-	readonly nvim_bin=/usr/bin/nvim
-elif [ "$(uname)" = "Darwin" ]; then
-	readonly pigz_bin=/opt/homebrew/bin/pigz
-	readonly ncdu_bin=/opt/homebrew/bin/ncdu
-	readonly chromium_bin=/Applications/Chromium.app/Contents/MacOS/Chromium
-	readonly pngquant_bin=/opt/homebrew/bin/pngquant
-	readonly optipng_bin=/opt/homebrew/bin/optipng
-	readonly tar_bin=/usr/bin/tar
-	readonly ps_bin=/usr/bin/ps
-	readonly wrk_bin=/opt/homebrew/bin/wrk
-	readonly git_bin=/usr/bin/git
-	readonly nvim_bin=/opt/homebrew/bin/nvim
-	readonly orbstackctl_bin=/usr/local/bin/orbctl
-fi
+path_of() {
+	command -v "$1" 2>/dev/null || true
+}
 
-readonly vim_bin=/usr/bin/vim
+readonly pigz_bin="$(path_of pigz)"
+readonly ncdu_bin="$(path_of ncdu)"
+readonly tar_bin="$(path_of tar)"
+readonly ps_bin="$(path_of ps)"
+readonly wrk_bin="$(path_of wrk)"
+readonly git_bin="$(path_of git)"
+readonly podman_bin="$(path_of podman)"
+readonly podman_compose_bin="$(path_of podman-compose)"
+readonly ufw_bin="$(path_of ufw)"
+readonly nvim_bin="$(path_of nvim)"
+readonly vim_bin="$(path_of vim)"
+readonly pngquant_bin="$(path_of pngquant)"
+readonly optipng_bin="$(path_of optipng)"
+readonly orbstackctl_bin="$(path_of orbctl)"
+
 readonly jest_bin=./node_modules/jest/bin/jest.js
 readonly node_bin=node
+
+readonly chromium_bin="$(
+	command -v chromium 2>/dev/null ||
+	command -v chromium-browser 2>/dev/null ||
+	printf '%s\n' /Applications/Chromium.app/Contents/MacOS/Chromium
+)"
