@@ -32,63 +32,58 @@ sharefile() {
 
 	ssh "$SHAREFILE_REMOTE_HOST" "mkdir -p '$SHAREFILE_REMOTE_BASE/$date_dir'" 2>/dev/null || return 1
 
-	local urls
+	local urls original ext base safe_base id filename url
 	urls=""
 
 	for file in "$@"; do
-		local original
 		original="$(basename "$file")"
 
-		local ext
-		ext="${original##*.}"
-
-		local base
-		base="${original%.*}"
-
-		local safe_base
-		safe_base="$(echo "$base" |
-			tr '[:upper:]' '[:lower:]' |
-			sed 's/[^a-z0-9._-]/-/g' |
-			sed 's/-\+/-/g' |
-			sed 's/^-//' |
-			sed 's/-$//')"
-
-		if [ -z "$safe_base" ]; then
-			safe_base="file"
+		if [[ "$original" == *.* ]]; then
+			ext="${original##*.}"
+			base="${original%.*}"
+		else
+			ext=""
+			base="$original"
 		fi
 
-		local id
+		safe_base="$(printf "%s" "$base" |
+			tr '[:upper:]' '[:lower:]' |
+			sed 's/[^a-z0-9._-]/-/g; s/-\+/-/g; s/^-//; s/-$//')"
+
+		[ -n "$safe_base" ] || safe_base="file"
+
 		if command -v openssl >/dev/null 2>&1; then
 			id="$(openssl rand -hex 8)"
 		else
 			id="$(date +%s)-$RANDOM"
 		fi
 
-		local filename
-		if [ "$original" = "$ext" ]; then
-			filename="$safe_base-$id"
-		else
+		if [ -n "$ext" ]; then
 			filename="$safe_base-$id.$ext"
+		else
+			filename="$safe_base-$id"
 		fi
 
-		rsync -av \
-			"$file" \
-			"$SHAREFILE_REMOTE_HOST:$SHAREFILE_REMOTE_BASE/$date_dir/$filename" || return 1
-
-		local url
 		url="$SHAREFILE_PUBLIC_BASE/$date_dir/$filename"
 
-		echo "$url"
-		urls="${urls}${url}
-"
+		printf "Uploading %s... " "$original"
+
+		if rsync -a --quiet "$file" "$SHAREFILE_REMOTE_HOST:$SHAREFILE_REMOTE_BASE/$date_dir/$filename"; then
+			printf "done\n"
+			printf "%s\n\n" "$url"
+			urls="${urls}${url}"$'\n'
+		else
+			printf "failed\n"
+			return 1
+		fi
 	done
 
 	ssh "$SHAREFILE_REMOTE_HOST" \
-		"restorecon -R '$SHAREFILE_REMOTE_BASE/$date_dir' 2>/dev/null || true"
+		"restorecon -R '$SHAREFILE_REMOTE_BASE/$date_dir' 2>/dev/null || true" 2>/dev/null
 
 	if command -v pbcopy >/dev/null 2>&1; then
 		printf "%s" "$urls" | pbcopy
-		echo "Copied to clipboard."
+		echo "Copied URL(s) to clipboard."
 	fi
 }
 
