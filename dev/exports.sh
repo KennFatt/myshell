@@ -54,19 +54,56 @@ fi
 ## Node Version Manager (NVM)
 if [[ -d $HOME/.nvm ]]; then
 	export NVM_DIR="$HOME/.nvm"
-	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+	_myshell_nvm_resolve_alias() {
+		local alias_name="$1"
+		local alias_file alias_value
+
+		while [[ -n "$alias_name" && -f "$NVM_DIR/alias/$alias_name" ]]; do
+			alias_file="$NVM_DIR/alias/$alias_name"
+			IFS= read -r alias_value < "$alias_file"
+			[[ "$alias_value" = "$alias_name" ]] && break
+			alias_name="$alias_value"
+		done
+
+		printf '%s\n' "$alias_name"
+	}
+
+	_myshell_nvm_default_version="$(_myshell_nvm_resolve_alias default)"
+	if [[ -n "$_myshell_nvm_default_version" && -d "$NVM_DIR/versions/node/$_myshell_nvm_default_version/bin" ]]; then
+		export PATH="$NVM_DIR/versions/node/$_myshell_nvm_default_version/bin:$PATH"
+	fi
+	unset _myshell_nvm_default_version
+	unset -f _myshell_nvm_resolve_alias 2>/dev/null || unset _myshell_nvm_resolve_alias
+
+	nvm() {
+		unset -f nvm 2>/dev/null || unset nvm
+		[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+		nvm "$@"
+	}
 fi
 
 ## Go Version Manager (GVM)
 if [[ -d $HOME/.gvm ]]; then
-	[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
+	export GVM_ROOT="$HOME/.gvm"
+	[[ -s "$GVM_ROOT/environments/default" ]] && source "$GVM_ROOT/environments/default"
+
+	gvm() {
+		unset -f gvm 2>/dev/null || unset gvm
+		[[ -s "$GVM_ROOT/scripts/gvm" ]] && source "$GVM_ROOT/scripts/gvm"
+		gvm "$@"
+	}
 fi
 
 ## SDKMan (Java SDK manager)
 if [[ -d $HOME/.sdkman ]]; then
 	export SDKMAN_DIR="$HOME/.sdkman"
-	[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+	sdk() {
+		unset -f sdk 2>/dev/null || unset sdk
+		[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+		sdk "$@"
+	}
 fi
 
 ## PNPM (Another node package manager)
