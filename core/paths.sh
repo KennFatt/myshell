@@ -16,6 +16,8 @@ readonly vim_bin="$(path_of vim)"
 readonly pngquant_bin="$(path_of pngquant)"
 readonly optipng_bin="$(path_of optipng)"
 readonly orbstackctl_bin="$(path_of orbctl)"
+readonly vscode_bin="$(path_of code-insiders)"
+readonly fzf_bin="$(path_of fzf)"
 
 readonly jest_bin=./node_modules/jest/bin/jest.js
 readonly node_bin=node
