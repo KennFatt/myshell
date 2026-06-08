@@ -2,15 +2,33 @@
 
 # ==========================================================
 # Git Worktree Flow
-# Main command: wt <branch>
+# ==========================================================
+#
+# Main command:
+#
+#   wt <branch>
+#
+# Examples:
+#
+#   wt feat/auth
+#   wt fix/login-bug
+#   wt release/v2
+#
+# Behavior:
+#
+#   1. Existing worktree? -> enter it
+#   2. Existing branch?   -> create worktree + enter it
+#   3. New branch?        -> create branch + worktree + enter it
+#
 # ==========================================================
 
-_wt_usage() {
-	cat <<EOF
+_wt_help() {
+	cat <<'EOF'
 
-Usage:
+Git Worktree Commands
+
   wt <branch>
-      Switch to an existing worktree, or create one safely.
+      Enter existing worktree or create one.
 
   wt list
       List worktrees.
@@ -22,152 +40,174 @@ Usage:
       Clean stale worktree metadata.
 
   wt help
-      Show this help.
+      Show help.
 
-Description:
-  wt <branch> does the safest useful thing:
-    1. If worktree already exists, cd into it.
-    2. If branch exists, create worktree and cd into it.
-    3. If branch does not exist, create branch + worktree and cd into it.
+  wt-code <branch>
+      Open a worktree in VS Code.
 
-Examples:
-  wt feature-auth
-  wt hotfix-login
+  wt-fzf
+      Interactive worktree switcher.
+
+Examples
+
+  wt feat/auth
+  wt fix/login-bug
+  wt release/v2
+
   wt list
-  wt rm feature-auth
+  wt rm feat/auth
   wt prune
 
 EOF
 }
 
-_wt_root() {
-	git rev-parse --show-toplevel 2>/dev/null
+_wt_require_repo() {
+	git rev-parse --is-inside-work-tree >/dev/null 2>&1
 }
 
-_wt_repo_name() {
-	basename "$(_wt_root)"
+_wt_repo_root() {
+	git rev-parse --show-toplevel
 }
 
-_wt_base_dir() {
-	dirname "$(_wt_root)"
+_wt_parent_dir() {
+	dirname "$(_wt_repo_root)"
+}
+
+# feat/auth -> wt-feat-auth
+_wt_dir_name() {
+	local branch="$1"
+	echo "wt-${branch//\//-}"
+}
+
+_wt_worktree_path() {
+	local branch="$1"
+	echo "$(_wt_parent_dir)/$(_wt_dir_name "$branch")"
 }
 
 _wt_branch_exists() {
 	git show-ref --verify --quiet "refs/heads/$1"
 }
 
-_wt_worktree_path() {
-	local branch="$1"
-	echo "$(_wt_base_dir)/$branch"
-}
-
-_wt_existing_worktree_for_branch() {
+_wt_find_worktree() {
 	local branch="$1"
 
 	git worktree list --porcelain |
-		awk -v branch="refs/heads/$branch" '
-      /^worktree / { path=$2 }
-      /^branch / && $2 == branch { print path }
-    '
+		awk -v target="refs/heads/$branch" '
+    /^worktree / { path=$2 }
+    /^branch / {
+      if ($2 == target) {
+        print path
+      }
+    }
+  '
 }
 
-_wt_require_repo() {
-	if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-		echo "Error: not inside a Git repository."
-		return 1
-	fi
-}
-
-_wt_validate_branch_arg() {
+_wt_validate_branch() {
 	local branch="$1"
 
 	if [[ -z "$branch" ]]; then
-		_wt_usage
+		_wt_help
 		return 1
 	fi
 
-	if [[ "$branch" == -* ]]; then
-		echo "Error: branch name cannot start with '-'."
-		return 1
-	fi
-
-	if [[ "$branch" == *".."* || "$branch" == *"~"* || "$branch" == *"^"* || "$branch" == *":"* || "$branch" == *"?"* || "$branch" == *"["* || "$branch" == *"\\"* ]]; then
-		echo "Error: invalid branch name: $branch"
-		return 1
-	fi
+	git check-ref-format --branch "$branch" >/dev/null 2>&1
 }
 
 wt() {
+
 	local cmd="$1"
-	local branch="$1"
-	local target
-	local existing
 
 	case "$cmd" in
-	"" | help | -h | --help)
-		_wt_usage
+
+	"" | -h | --help | help)
+		_wt_help
 		return 0
 		;;
 
 	list | ls)
-		_wt_require_repo || return 1
+		_wt_require_repo || {
+			echo "Not inside a git repository."
+			return 1
+		}
+
 		git worktree list
 		return
 		;;
 
 	prune)
-		_wt_require_repo || return 1
+		_wt_require_repo || {
+			echo "Not inside a git repository."
+			return 1
+		}
+
 		git worktree prune
 		return
 		;;
 
 	rm | remove)
-		_wt_require_repo || return 1
-		branch="$2"
+
+		_wt_require_repo || {
+			echo "Not inside a git repository."
+			return 1
+		}
+
+		local branch="$2"
 
 		if [[ -z "$branch" ]]; then
 			echo "Usage: wt rm <branch>"
-			echo "Remove a worktree."
+			echo
+			echo "Example:"
+			echo "  wt rm feat/auth"
 			return 1
 		fi
 
-		_wt_validate_branch_arg "$branch" || return 1
+		local existing
 
-		existing="$(_wt_existing_worktree_for_branch "$branch")"
+		existing="$(_wt_find_worktree "$branch")"
 
 		if [[ -z "$existing" ]]; then
-			target="$(_wt_worktree_path "$branch")"
-
-			if [[ ! -d "$target" ]]; then
-				echo "Error: no worktree found for branch or path: $branch"
-				return 1
-			fi
-
-			existing="$target"
+			existing="$(_wt_worktree_path "$branch")"
 		fi
 
-		echo "Removing worktree: $existing"
+		if [[ ! -d "$existing" ]]; then
+			echo "Worktree not found: $branch"
+			return 1
+		fi
+
+		echo "Removing: $existing"
 		git worktree remove "$existing"
 		return
 		;;
 	esac
 
-	_wt_require_repo || return 1
-	_wt_validate_branch_arg "$branch" || return 1
+	_wt_require_repo || {
+		echo "Not inside a git repository."
+		return 1
+	}
 
-	existing="$(_wt_existing_worktree_for_branch "$branch")"
+	local branch="$1"
+
+	_wt_validate_branch "$branch" || {
+		echo "Invalid branch name."
+		return 1
+	}
+
+	local existing
+
+	existing="$(_wt_find_worktree "$branch")"
 
 	if [[ -n "$existing" ]]; then
 		cd "$existing" || return 1
-		echo "Entered existing worktree: $existing"
+		echo "Entered: $existing"
 		return 0
 	fi
+
+	local target
 
 	target="$(_wt_worktree_path "$branch")"
 
 	if [[ -e "$target" ]]; then
-		echo "Error: target path already exists but is not registered as a worktree:"
-		echo "  $target"
+		echo "Path already exists: $target"
 		return 1
 	fi
 
