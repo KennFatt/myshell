@@ -17,8 +17,8 @@
 # Behavior:
 #
 #   1. Existing worktree? -> enter it
-#   2. Existing branch?   -> create worktree + enter it
-#   3. New branch?        -> create branch + worktree + enter it
+#   2. Existing branch?   -> create worktree + copy local changes + enter it
+#   3. New branch?        -> create branch + worktree + copy local changes + enter it
 #
 # ==========================================================
 
@@ -28,7 +28,7 @@ _wt_help() {
 Git Worktree Commands
 
   wt <branch>
-      Enter existing worktree or create one.
+      Enter existing worktree or create one, copying unstaged tracked and untracked files when creating.
 
   wt list
       List worktrees.
@@ -86,6 +86,43 @@ _wt_worktree_path() {
 
 _wt_branch_exists() {
 	git show-ref --verify --quiet "refs/heads/$1"
+}
+
+_wt_copy_untracked_files() {
+	local target="$1"
+	local file
+
+	git ls-files --others --exclude-standard -z |
+	while IFS= read -r -d '' file; do
+		[[ -e "$file" ]] || continue
+
+		mkdir -p "$target/$(dirname "$file")" || return 1
+		cp -R "$file" "$target/$file" || return 1
+		echo "Copied untracked file: $file"
+	done
+}
+
+_wt_apply_unstaged_tracked_changes() {
+	local target="$1"
+	local patch_file
+
+	patch_file="$(mktemp)" || return 1
+	git diff --binary --no-ext-diff >"$patch_file"
+
+	if [[ ! -s "$patch_file" ]]; then
+		rm -f "$patch_file"
+		return 0
+	fi
+
+	(
+		cd "$target" || exit 1
+		git apply --index --reject "$patch_file" && git reset
+	) || {
+		rm -f "$patch_file"
+		return 1
+	}
+
+	rm -f "$patch_file"
 }
 
 _wt_find_worktree() {
@@ -216,6 +253,9 @@ wt() {
 	else
 		git worktree add "$target" -b "$branch" || return 1
 	fi
+
+	_wt_apply_unstaged_tracked_changes "$target" || return 1
+	_wt_copy_untracked_files "$target" || return 1
 
 	cd "$target" || return 1
 	echo "Entered worktree: $target"
