@@ -212,7 +212,14 @@ wt() {
 		fi
 
 		echo "Removing: $existing"
-		git worktree remove "$existing"
+		if ! git worktree remove "$existing" 2>&1; then
+			printf "Force remove? [Y/n] "
+			read -r reply
+			case "${reply:-Y}" in
+				[Yy]*) git worktree remove --force "$existing" ;;
+				*) echo "Aborted."; return 1 ;;
+			esac
+		fi
 		return
 		;;
 	esac
