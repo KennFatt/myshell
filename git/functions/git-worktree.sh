@@ -16,9 +16,9 @@
 #
 # Behavior:
 #
-#   1. Existing worktree? -> enter it
-#   2. Existing branch?   -> create worktree + copy local changes + enter it
-#   3. New branch?        -> create branch + worktree + copy local changes + enter it
+#   1. Existing worktree? -> enter it, open in VS Code
+#   2. Existing branch?   -> create worktree + copy local changes + enter it, open in VS Code
+#   3. New branch?        -> create branch + worktree + copy local changes + enter it, open in VS Code
 #
 # ==========================================================
 
@@ -28,7 +28,7 @@ _wt_help() {
 Git Worktree Commands
 
   wt <branch>
-      Enter existing worktree or create one, copying unstaged tracked and untracked files when creating.
+      Enter or create a worktree (copies unstaged tracked + untracked files when creating) and opens it in VS Code.
 
   wt list
       List worktrees.
@@ -41,9 +41,6 @@ Git Worktree Commands
 
   wt help
       Show help.
-
-  wt-code <branch>
-      Open a worktree in VS Code.
 
   wt-fzf
       Interactive worktree switcher.
@@ -243,6 +240,9 @@ wt() {
 	if [[ -n "$existing" ]]; then
 		cd "$existing" || return 1
 		echo "Entered: $existing"
+		if [[ -x $vscode_bin ]]; then
+			$vscode_bin .
+		fi
 		return 0
 	fi
 
@@ -266,13 +266,15 @@ wt() {
 
 	cd "$target" || return 1
 	echo "Entered worktree: $target"
+	if [[ -x $vscode_bin ]]; then
+		$vscode_bin .
+	fi
 }
 
 if [[ -x $vscode_bin ]]; then
+	# Backward compat: wt-code is now the same as wt.
 	wt-code() {
-		wt "$1" || return 1
-
-		$vscode_bin .
+		wt "$@"
 	}
 fi
 
