@@ -139,8 +139,13 @@ sharefile-purge() {
 		return 1
 	fi
 
-	echo "This will delete all temporary shares under:"
-	echo "$SHAREFILE_REMOTE_HOST:$SHAREFILE_REMOTE_BASE"
+	if [ -z "${SHAREFILE_PUBLIC_BASE:-}" ]; then
+		echo "Missing env: SHAREFILE_PUBLIC_BASE"
+		return 1
+	fi
+
+	echo "This will archive all temporary shares and clean up."
+	echo "Archive: $(dirname "$SHAREFILE_REMOTE_BASE")/a/archive-<timestamp>-<id>.tar.gz"
 	printf "Type PURGE to continue: "
 
 	local confirm
@@ -153,14 +158,65 @@ sharefile-purge() {
 
 	ssh -q "$SHAREFILE_REMOTE_HOST" "
     base='$SHAREFILE_REMOTE_BASE'
+    public='$SHAREFILE_PUBLIC_BASE'
 
     if [ ! -d \"\$base\" ]; then
       echo 'Share directory does not exist.'
       exit 1
     fi
 
+    # unique id and timestamp
+    if command -v openssl >/dev/null 2>&1; then
+      id=\"\$(openssl rand -hex 8)\"
+    else
+      id=\"\$(date +%s)-\$RANDOM\"
+    fi
+    timestamp=\"\$(date +%Y%m%d-%H%M%S)\"
+
+    # archive destination: parent directory + /a/
+    archive_dir=\"\$(dirname \"\$base\")/a\"
+    mkdir -p \"\$archive_dir\"
+    archive_file=\"\$archive_dir/archive-\$timestamp-\$id.tar.gz\"
+
+    # compression: prefer pigz on the remote
+    if command -v pigz >/dev/null 2>&1; then
+      compress_cmd=\"pigz\"
+    else
+      compress_cmd=\"gzip\"
+    fi
+
+    total_files=\"\$(find \"\$base\" -type f | wc -l | tr -d ' ')\"
+    if [ \"\$total_files\" -eq 0 ]; then
+      echo 'No files to archive.'
+      exit 0
+    fi
+
+    # archive everything under base
+    if ! tar -C \"\$base\" -cf - . | \"\$compress_cmd\" > \"\$archive_file\"; then
+      echo 'Archive creation failed — aborting. No files deleted.'
+      rm -f \"\$archive_file\"
+      exit 1
+    fi
+
+    # verify archive is valid and non-empty before deleting originals
+    if ! [ -s \"\$archive_file\" ] || ! tar -tzf \"\$archive_file\" >/dev/null 2>&1; then
+      echo 'Archive verification failed — aborting. No files deleted.'
+      rm -f \"\$archive_file\"
+      exit 1
+    fi
+
+    archive_size=\"\$(du -h \"\$archive_file\" | awk '{print \$1}')\"
+    archived_count=\"\$(tar -tzf \"\$archive_file\" | wc -l | tr -d ' ')\"
+
+    # clean up all files and directories under base
     find \"\$base\" -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
-    echo 'All temporary shares purged.'
+    find \"\$base\" -mindepth 1 -maxdepth 1 -type f -delete
+
+    # derive public URL for the archive (replace last path segment with /a)
+    archive_public=\"\$(echo \"\$public\" | sed 's,/[^/]*\$,/a,')\"
+    echo \"Archived \$archived_count files to: \$archive_file (\$archive_size)\"
+    echo \"Public URL: \$archive_public/archive-\$timestamp-\$id.tar.gz\"
+    echo \"All temporary shares cleaned up.\"
   "
 }
 
@@ -246,7 +302,8 @@ sharefile-list() {
 		return 1
 	fi
 
-	ssh -q "$SHAREFILE_REMOTE_HOST" "
+	local urls
+	urls="$(ssh -q "$SHAREFILE_REMOTE_HOST" "
     base='$SHAREFILE_REMOTE_BASE'
     public='$SHAREFILE_PUBLIC_BASE'
 
@@ -255,11 +312,28 @@ sharefile-list() {
       exit 1
     fi
 
-    i=1
     find \"\$base\" -type f | sort | while read -r file; do
       rel=\${file#\"\$base\"/}
-      printf '%d. %s/%s\n' \"\$i\" \"\$public\" \"\$rel\"
-      i=\$((i + 1))
+      printf '%s/%s\n' \"\$public\" \"\$rel\"
     done
-  "
+  ")" || return 1
+
+	if [ -z "$urls" ]; then
+		echo "No files found."
+		return 0
+	fi
+
+	if [ -n "${fzf_bin:-}" ]; then
+		local selected
+		selected="$(echo "$urls" | "$fzf_bin" --prompt="Select share URL (enter to copy): ")"
+		if [ -n "$selected" ]; then
+			echo "$selected"
+			if command -v pbcopy >/dev/null 2>&1; then
+				echo "$selected" | pbcopy
+				echo "Copied to clipboard."
+			fi
+		fi
+	else
+		echo "$urls" | nl -w1 -s'. '
+	fi
 }
