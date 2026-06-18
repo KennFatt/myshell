@@ -28,3 +28,9 @@ chromium_bin="$(
 	command -v chromium-browser 2>/dev/null ||
 	printf '%s\n' /Applications/Chromium.app/Contents/MacOS/Chromium
 )"
+
+# myshell scripts — add to PATH so they're callable by name
+MYSHELL_SCRIPTS_DIR="$HOME/.myshell/scripts"
+if [ -d "$MYSHELL_SCRIPTS_DIR" ]; then
+	export PATH="$MYSHELL_SCRIPTS_DIR:$PATH"
+fi

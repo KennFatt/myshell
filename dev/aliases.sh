@@ -24,5 +24,5 @@ if [[ -d $ANDROID_HOME ]]; then
 fi
 
 if [ "$(uname)" = "Darwin" ]; then
-	alias clipboard-to-json='pbpaste | python3 "$HOME/.myshell/scripts/json_to_block_comment.py"'
+	alias clipboard-to-json='pbpaste | json-to-block-comment'
 fi
