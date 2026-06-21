@@ -8,6 +8,7 @@ alias agy-here="agy --no-proxy-server . &; sleep 0.5; disown; exit;"
 
 alias chad='claude'
 alias cx='codex'
+alias pi='pi --exclude-tools edit'
 
 # Podman as docker
 if [[ -f $podman_bin ]]; then
