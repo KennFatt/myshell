@@ -126,3 +126,8 @@ if [ "$(uname)" = "Darwin" ]; then
 		export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
 	fi
 fi
+
+## React Editor
+if [[ -x $vscode_bin ]]; then
+	export REACT_EDITOR=$vscode_bin
+fi
