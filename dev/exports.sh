@@ -131,3 +131,9 @@ fi
 if [[ -x $vscode_bin ]]; then
 	export REACT_EDITOR=$vscode_bin
 fi
+
+if [[ -d $HOME/.pi ]]; then
+	export PI_HARNESS_MODEL_PATTERN=deepseek,mimo
+	export PI_HARNESS_CACHE_STRIP_REASONING=false
+	export PI_HARNESS_HASHLINES_ENABLED=false
+fi
