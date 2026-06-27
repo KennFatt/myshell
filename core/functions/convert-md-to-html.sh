@@ -116,7 +116,7 @@ _convert-md-to-html--run-pandoc() {
 	local page_title="$4" use_custom_css="$5" custom_css="$6"
 
 	local default_css="${MY_SHELL_ROOT:-$HOME/.myshell}/assets/pandoc-style.css"
-	local -a cmd=(pandoc "$input_file" -s -o "$output_file" --filter gazu --mathjax --embed-resources)
+	local -a cmd=(pandoc "$input_file" -s --toc -o "$output_file" --filter gazu --mathjax --embed-resources)
 
 	if [[ -n "$page_title" ]]; then
 		cmd+=(--variable "pagetitle=${page_title} | Kennan Fattahillah")
