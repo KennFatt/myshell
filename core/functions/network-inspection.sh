@@ -8,7 +8,7 @@ ipcheck() {
   IP="$1"
 
   echo "=== Active connections involving $IP ==="
-  sudo ss -tunap | grep --color=always "$IP" || echo "No active ss connections found."
+  sudo $ss_bin -tunap | grep --color=always "$IP" || echo "No active ss connections found."
 
   echo
   echo "=== Recent auth log entries ==="
@@ -28,11 +28,11 @@ ipcheck() {
 
   echo
   echo "=== Reverse DNS ==="
-  dig -x "$IP" +short 2>/dev/null || nslookup "$IP" 2>/dev/null
+  $dig_bin -x "$IP" +short 2>/dev/null || $nslookup_bin "$IP" 2>/dev/null
 
   echo
   echo "=== Caddy log entries ==="
-  sudo journalctl -u caddy --since "24 hours ago" --no-pager 2>/dev/null | grep --color=always "$IP" | tail -50 || echo "No Caddy journal matches."
+  sudo $journalctl_bin -u caddy --since "24 hours ago" --no-pager 2>/dev/null | grep --color=always "$IP" | tail -50 || echo "No Caddy journal matches."
 
   sudo grep -h "$IP" \
     /var/log/caddy/*.log \
@@ -49,7 +49,7 @@ ipwatch() {
     return 1
   fi
 
-  watch -n 1 "sudo ss -tunap | grep '$1' || true"
+  $watch_bin -n 1 "sudo $ss_bin -tunap | grep '$1' || true"
 }
 
 # Block an IP with UFW
@@ -59,8 +59,8 @@ ipban() {
     return 1
   fi
 
-  sudo ufw deny from "$1"
-  sudo ufw reload
+  sudo $ufw_bin deny from "$1"
+  sudo $ufw_bin reload
   echo "Blocked $1 with UFW."
 }
 
@@ -71,8 +71,8 @@ ipunban() {
     return 1
   fi
 
-  sudo ufw delete deny from "$1"
-  sudo ufw reload
+  sudo $ufw_bin delete deny from "$1"
+  sudo $ufw_bin reload
   echo "Removed UFW deny rule for $1."
 }
 
@@ -83,7 +83,7 @@ f2blist() {
 
 # Show detailed fail2ban status
 f2bstatus() {
-  sudo fail2ban-client status
+  sudo $fail2ban_client_bin status
 }
 
 # Show one fail2ban jail status
@@ -94,7 +94,7 @@ f2bjail() {
     return 1
   fi
 
-  sudo fail2ban-client status "$1"
+  sudo $fail2ban_client_bin status "$1"
 }
 
 # Manually ban IP in a fail2ban jail
@@ -105,7 +105,7 @@ f2bban() {
     return 1
   fi
 
-  sudo fail2ban-client set "$1" banip "$2"
+  sudo $fail2ban_client_bin set "$1" banip "$2"
 }
 
 # Manually unban IP from a fail2ban jail
@@ -116,7 +116,7 @@ f2bunban() {
     return 1
   fi
 
-  sudo fail2ban-client set "$1" unbanip "$2"
+  sudo $fail2ban_client_bin set "$1" unbanip "$2"
 }
 
 # Check Caddy logs for an IP
@@ -129,7 +129,7 @@ ipcaddy() {
   IP="$1"
 
   echo "=== Caddy logs via journalctl ==="
-  sudo journalctl -u caddy --since "24 hours ago" --no-pager 2>/dev/null | grep --color=always "$IP" | tail -100 || echo "No Caddy journal matches."
+  sudo $journalctl_bin -u caddy --since "24 hours ago" --no-pager 2>/dev/null | grep --color=always "$IP" | tail -100 || echo "No Caddy journal matches."
 
   echo
   echo "=== Common Caddy log files ==="
@@ -229,8 +229,8 @@ EOF
     filter_expr="$(printf ' and %s' "${filters[@]}")"
     filter_expr="${filter_expr# and }"
 
-    sudo command iftop -nP -i "$iface" -B -f "$filter_expr"
+    sudo $iftop_bin -nP -i "$iface" -B -f "$filter_expr"
   else
-    sudo command iftop -nP -i "$iface" -B
+    sudo $iftop_bin -nP -i "$iface" -B
   fi
 }
