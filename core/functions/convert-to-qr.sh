@@ -6,5 +6,5 @@ convert-to-qr() {
 
   local file="$1"
 
-  qrencode -t ansiutf8 -r "$file"
+  $qrencode_bin -t ansiutf8 -r "$file"
 }

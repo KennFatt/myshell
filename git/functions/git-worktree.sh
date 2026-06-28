@@ -59,11 +59,11 @@ EOF
 }
 
 _wt_require_repo() {
-	git rev-parse --is-inside-work-tree >/dev/null 2>&1
+	$git_bin rev-parse --is-inside-work-tree >/dev/null 2>&1
 }
 
 _wt_repo_root() {
-	git rev-parse --show-toplevel
+	$git_bin rev-parse --show-toplevel
 }
 
 _wt_parent_dir() {
@@ -82,14 +82,14 @@ _wt_worktree_path() {
 }
 
 _wt_branch_exists() {
-	git show-ref --verify --quiet "refs/heads/$1"
+	$git_bin show-ref --verify --quiet "refs/heads/$1"
 }
 
 _wt_copy_untracked_files() {
 	local target="$1"
 	local file
 
-	git ls-files --others --exclude-standard -z |
+	$git_bin ls-files --others --exclude-standard -z |
 	while IFS= read -r -d '' file; do
 		[[ -e "$file" ]] || continue
 
@@ -104,7 +104,7 @@ _wt_apply_unstaged_tracked_changes() {
 	local patch_file
 
 	patch_file="$(mktemp)" || return 1
-	git diff --binary --no-ext-diff >"$patch_file"
+	$git_bin diff --binary --no-ext-diff >"$patch_file"
 
 	if [[ ! -s "$patch_file" ]]; then
 		rm -f "$patch_file"
@@ -113,7 +113,7 @@ _wt_apply_unstaged_tracked_changes() {
 
 	(
 		cd "$target" || exit 1
-		git apply --index --reject "$patch_file" && git reset
+		$git_bin apply --index --reject "$patch_file" && $git_bin reset
 	) || {
 		rm -f "$patch_file"
 		return 1
@@ -125,7 +125,7 @@ _wt_apply_unstaged_tracked_changes() {
 _wt_find_worktree() {
 	local branch="$1"
 
-	git worktree list --porcelain |
+	$git_bin worktree list --porcelain |
 		awk -v target="refs/heads/$branch" '
     /^worktree / { path=$2 }
     /^branch / {
@@ -144,7 +144,7 @@ _wt_validate_branch() {
 		return 1
 	fi
 
-	git check-ref-format --branch "$branch" >/dev/null 2>&1
+	$git_bin check-ref-format --branch "$branch" >/dev/null 2>&1
 }
 
 wt() {
@@ -164,7 +164,7 @@ wt() {
 			return 1
 		}
 
-		git worktree list
+		$git_bin worktree list
 		return
 		;;
 
@@ -174,7 +174,7 @@ wt() {
 			return 1
 		}
 
-		git worktree prune
+		$git_bin worktree prune
 		return
 		;;
 
@@ -209,11 +209,11 @@ wt() {
 		fi
 
 		echo "Removing: $existing"
-		if ! git worktree remove "$existing" 2>&1; then
+		if ! $git_bin worktree remove "$existing" 2>&1; then
 			printf "Force remove? [Y/n] "
 			read -r reply
 			case "${reply:-Y}" in
-				[Yy]*) git worktree remove --force "$existing" ;;
+				[Yy]*) $git_bin worktree remove --force "$existing" ;;
 				*) echo "Aborted."; return 1 ;;
 			esac
 		fi
@@ -256,9 +256,9 @@ wt() {
 	fi
 
 	if _wt_branch_exists "$branch"; then
-		git worktree add "$target" "$branch" || return 1
+		$git_bin worktree add "$target" "$branch" || return 1
 	else
-		git worktree add "$target" -b "$branch" || return 1
+		$git_bin worktree add "$target" -b "$branch" || return 1
 	fi
 
 	_wt_apply_unstaged_tracked_changes "$target" || return 1
@@ -283,7 +283,7 @@ if [[ -x $fzf_bin ]]; then
 		_wt_require_repo || return 1
 
 		local target
-		target="$(git worktree list | fzf | awk '{print $1}')"
+		target="$($git_bin worktree list | $fzf_bin | awk '{print $1}')"
 
 		[[ -z "$target" ]] && return 1
 

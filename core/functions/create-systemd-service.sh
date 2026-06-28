@@ -104,8 +104,8 @@ EOF
 WantedBy=default.target
 EOF
 
-		systemctl --user daemon-reload
-		systemctl --user enable --now "${name}.service"
+		$systemctl_bin --user daemon-reload
+		$systemctl_bin --user enable --now "${name}.service"
 
 		echo "✅ Service created & started: ${service_path}"
 		echo "📜 View logs: journalctl --user -u ${name}.service -f"

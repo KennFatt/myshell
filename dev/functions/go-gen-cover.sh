@@ -6,7 +6,7 @@ if [ "$(uname)" = "Linux" ]; then
 			return 1
 		fi
 
-		if ! type go &>/dev/null; then
+		if [ -z "$go_bin" ]; then
 			echo "error: 'go' command is missing"
 			return 1
 		fi
@@ -25,7 +25,7 @@ if [ "$(uname)" = "Linux" ]; then
 		t="$tDir/go-cover.$$.tmp"
 
 		# run the test and generate the coverage > $t.html
-		go list ./... | grep $module_name | xargs go test -coverprofile=$t && go tool cover -html=$t -o $t.html
+		$go_bin list ./... | grep $module_name | xargs $go_bin test -coverprofile=$t && $go_bin tool cover -html=$t -o $t.html
 
 		# remove the out file
 		unlink $t

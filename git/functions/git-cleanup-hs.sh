@@ -1,5 +1,5 @@
 git-cleanup-hs() {
-	current="$(git branch --show-current)"
+	current="$($git_bin branch --show-current)"
 
 	if [ -z "$current" ]; then
 		echo "Not on a branch"
@@ -9,7 +9,7 @@ git-cleanup-hs() {
 	if [[ "$current" == *-hs ]]; then
 		hs_branch="$current"
 		work_branch="${current%-hs}"
-		git switch "$work_branch" || return 1
+		$git_bin switch "$work_branch" || return 1
 	else
 		work_branch="$current"
 		hs_branch="$current-hs"
@@ -28,9 +28,9 @@ git-cleanup-hs() {
 		return 1
 	fi
 
-	git branch -D "$hs_branch" 2>/dev/null || true
-	git push hs --delete "$hs_branch" 2>/dev/null || true
-	git push hs --delete "$work_branch" 2>/dev/null || true
+	$git_bin branch -D "$hs_branch" 2>/dev/null || true
+	$git_bin push hs --delete "$hs_branch" 2>/dev/null || true
+	$git_bin push hs --delete "$work_branch" 2>/dev/null || true
 
 	echo "HS cleanup done."
 }

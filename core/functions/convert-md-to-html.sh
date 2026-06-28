@@ -101,10 +101,10 @@ HELP
 }
 
 _convert-md-to-html--ensure-gazu() {
-	if command -v gazu &>/dev/null; then return 0; fi
+	if [ -n "$gazu_bin" ]; then return 0; fi
 	echo "Warning: 'gazu' not found. Attempting install via cargo..."
-	if command -v cargo &>/dev/null; then
-		cargo install gazu
+	if [ -n "$cargo_bin" ]; then
+		$cargo_bin install gazu
 	else
 		echo "Error: 'cargo' not found. Install gazu manually."
 		return 1
@@ -116,7 +116,7 @@ _convert-md-to-html--run-pandoc() {
 	local page_title="$4" use_custom_css="$5" custom_css="$6"
 
 	local default_css="${MY_SHELL_ROOT:-$HOME/.myshell}/assets/pandoc-style.css"
-	local -a cmd=(pandoc "$input_file" -s --toc -o "$output_file" --filter gazu --mathjax --embed-resources)
+	local -a cmd=($pandoc_bin "$input_file" -s --toc -o "$output_file" --filter gazu --mathjax --embed-resources)
 
 	if [[ -n "$page_title" ]]; then
 		cmd+=(--variable "pagetitle=${page_title} | Kennan Fattahillah")

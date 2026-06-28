@@ -1,15 +1,15 @@
 gen-uuid() {
-  uuid="$(uuidgen)"
+  uuid="$($uuidgen_bin)"
 
   if [ "$(uname)" = "Darwin" ]; then
     # macOS
-    printf "%s" "$uuid" | pbcopy
+    printf "%s" "$uuid" | $pbcopy_bin
   elif [ "$(uname)" = "Linux" ]; then
     # Linux (requires xclip or xsel)
-    if command -v xclip >/dev/null 2>&1; then
-      printf "%s" "$uuid" | xclip -selection clipboard
-    elif command -v xsel >/dev/null 2>&1; then
-      printf "%s" "$uuid" | xsel --clipboard --input
+    if [ -n "$xclip_bin" ]; then
+      printf "%s" "$uuid" | $xclip_bin -selection clipboard
+    elif [ -n "$xsel_bin" ]; then
+      printf "%s" "$uuid" | $xsel_bin --clipboard --input
     else
       echo "Error: no clipboard tool (xclip/xsel) found." >&2
       return 1

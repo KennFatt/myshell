@@ -1,17 +1,15 @@
 # Dev - objdump
-alias obj-asm='objdump -S --disassemble $1 > $1_obj_asm.s'
-alias src-asm='gcc -S $1 -o _src_asm.s'
+alias obj-asm="$objdump_bin -S --disassemble \$1 > \$1_obj_asm.s"
+alias src-asm="$gcc_bin -S \$1 -o _src_asm.s"
 
-# Code with ag
-alias code-here="code-insiders --no-proxy-server . &; sleep 0.5; disown; exit;"
-alias agy-here="agy --no-proxy-server . &; sleep 0.5; disown; exit;"
+alias code-here="$vscode_bin --no-proxy-server . &; sleep 0.5; disown; exit;"
 
 # Podman as docker
 if [[ -f $podman_bin ]]; then
-	alias docker=podman
+	alias docker="$podman_bin"
 fi
 if [[ -f $podman_compose_bin ]]; then
-	alias docker-compose=podman-compose
+	alias docker-compose="$podman_compose_bin"
 fi
 
 # Android emulator

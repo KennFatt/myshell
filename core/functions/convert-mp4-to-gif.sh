@@ -23,7 +23,7 @@ convert-mp4-to-gif() {
 
   local output="${input%.*}.gif"
 
-  ffmpeg -y -i "$input" \
+  $ffmpeg_bin -y -i "$input" \
     -vf "fps=${fps},scale=${scale}:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
     "$output"
 

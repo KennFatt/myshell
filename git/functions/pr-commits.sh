@@ -94,25 +94,25 @@ EOF
     branch="$pos1"
   fi
 
-  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if ! $git_bin rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     echo "Not inside a Git repository." >&2
     return 1
   fi
 
   if [[ "$do_fetch" -eq 1 ]]; then
-    git fetch --prune "$remote" || return 1
+    $git_bin fetch --prune "$remote" || return 1
   fi
 
   base_ref="${remote}/${branch}"
 
-  if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
+  if ! $git_bin rev-parse --verify "$base_ref" >/dev/null 2>&1; then
     echo "Base ref not found: $base_ref" >&2
     return 1
   fi
 
-  merge_base="$(git merge-base "$base_ref" HEAD)" || return 1
+  merge_base="$($git_bin merge-base "$base_ref" HEAD)" || return 1
 
-  git log \
+  $git_bin log \
     --date=format:'%Y-%m-%d %H:%M:%S' \
     --pretty=format:'%ad | %H | %an | %s' \
     --max-count="$limit" \

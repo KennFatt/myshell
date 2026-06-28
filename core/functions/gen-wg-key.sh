@@ -6,7 +6,7 @@ gen-wg-key() {
 
   local name="$1"
 
-  wg genkey | (umask 0077 && tee "${name}.key") | wg pubkey > "${name}.pub"
+  $wg_bin genkey | (umask 0077 && tee "${name}.key") | $wg_bin pubkey > "${name}.pub"
 
   echo "Generated: ${name}.key and ${name}.pub"
 }

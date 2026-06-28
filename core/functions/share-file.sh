@@ -30,7 +30,7 @@ sharefile() {
 	local date_dir
 	date_dir="$(date +%Y%m%d)"
 
-	ssh "$SHAREFILE_REMOTE_HOST" "mkdir -p '$SHAREFILE_REMOTE_BASE/$date_dir'" 2>/dev/null || return 1
+	$ssh_bin "$SHAREFILE_REMOTE_HOST" "mkdir -p '$SHAREFILE_REMOTE_BASE/$date_dir'" 2>/dev/null || return 1
 
 	local urls original ext base safe_base id filename url
 	urls=""
@@ -78,7 +78,7 @@ sharefile() {
 		fi
 	done
 
-	ssh "$SHAREFILE_REMOTE_HOST" \
+	$ssh_bin "$SHAREFILE_REMOTE_HOST" \
 		"restorecon -R '$SHAREFILE_REMOTE_BASE/$date_dir' 2>/dev/null || true" 2>/dev/null
 
 	if command -v pbcopy >/dev/null 2>&1; then
@@ -98,7 +98,7 @@ sharefile-stats() {
 		return 1
 	fi
 
-	ssh -q "$SHAREFILE_REMOTE_HOST" "
+	$ssh_bin -q "$SHAREFILE_REMOTE_HOST" "
     base='$SHAREFILE_REMOTE_BASE'
 
     if [ ! -d \"\$base\" ]; then
@@ -156,7 +156,7 @@ sharefile-purge() {
 		return 1
 	fi
 
-	ssh -q "$SHAREFILE_REMOTE_HOST" "
+	$ssh_bin -q "$SHAREFILE_REMOTE_HOST" "
     base='$SHAREFILE_REMOTE_BASE'
     public='$SHAREFILE_PUBLIC_BASE'
 
@@ -246,7 +246,7 @@ sharefile-remove() {
 		;;
 	esac
 
-	ssh -q "$SHAREFILE_REMOTE_HOST" "
+	$ssh_bin -q "$SHAREFILE_REMOTE_HOST" "
     base='$SHAREFILE_REMOTE_BASE'
     target='$target'
 
@@ -303,7 +303,7 @@ sharefile-list() {
 	fi
 
 	local urls
-	urls="$(ssh -q "$SHAREFILE_REMOTE_HOST" "
+	urls="$($ssh_bin -q "$SHAREFILE_REMOTE_HOST" "
     base='$SHAREFILE_REMOTE_BASE'
     public='$SHAREFILE_PUBLIC_BASE'
 

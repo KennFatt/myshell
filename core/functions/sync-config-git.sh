@@ -42,7 +42,7 @@ sync-config-git() {
 					exit 0
 				}
 
-				git pull --recurse-submodules
+				$git_bin pull --recurse-submodules
 				local pull_status=$?
 
 				if [[ $pull_status -eq 0 ]]; then

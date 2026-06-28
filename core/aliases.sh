@@ -1,5 +1,5 @@
 # Common macros.
-alias ls='lsd --color=auto'
+alias ls="$lsd_bin --color=auto"
 alias ll='ls -alF'
 alias la='ls -A'
 alias lt='ls -lt'
@@ -9,41 +9,41 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 alias cls='clear; ls'
 
-alias hs='ssh homeserver'
+alias hs="$ssh_bin homeserver"
 
 # Time
 # alias now='date +%s'
-alias now="node -e 'console.log(Date.now())'"
+alias now="$node_bin -e 'console.log(Date.now())'"
 
 # System info
-alias sf='clear; fastfetch'
+alias sf="clear; $fastfetch_bin"
 alias topmem='sudo top -o +%MEM'
-alias inxi='inxi -Fxz'
+alias inxi="$inxi_bin -Fxz"
 
 # Network monitoring
-alias lsport='sudo lsof -i -P -n'
+alias lsport="sudo $lsof_bin -i -P -n"
 
 # User level application
-alias garage='docker exec -it garage-s3_garage_1 /garage'
+alias garage="$docker_bin exec -it garage-s3_garage_1 /garage"
 
 if [[ -f $ufw_bin ]]; then
-	alias ufw-status='sudo ufw status verbose'
-	alias ufw-reload='sudo ufw reload'
-	alias ufw-list='sudo ufw status numbered'
-	alias ufw-ls='sudo ufw status numbered'
-	alias ufw-log='sudo less -f /var/log/ufw.log'
-	alias ufw-allow='sudo ufw allow'
-	alias ufw-deny='sudo ufw deny'
-	alias ufw-allow-from='sudo ufw allow from'
-	alias ufw-delete='sudo ufw delete'
-	alias ufw-del='sudo ufw delete'
-	alias ufw-rm='sudo ufw delete'
-	alias ufw-apps='sudo ufw app list'
+	alias ufw-status="sudo $ufw_bin status verbose"
+	alias ufw-reload="sudo $ufw_bin reload"
+	alias ufw-list="sudo $ufw_bin status numbered"
+	alias ufw-ls="sudo $ufw_bin status numbered"
+	alias ufw-log="sudo $less_bin -f /var/log/ufw.log"
+	alias ufw-allow="sudo $ufw_bin allow"
+	alias ufw-deny="sudo $ufw_bin deny"
+	alias ufw-allow-from="sudo $ufw_bin allow from"
+	alias ufw-delete="sudo $ufw_bin delete"
+	alias ufw-del="sudo $ufw_bin delete"
+	alias ufw-rm="sudo $ufw_bin delete"
+	alias ufw-apps="sudo $ufw_bin app list"
 fi
 
 if [ "$(uname)" = "Linux" ]; then
 	# System info
-	alias cpuinfo="watch -n1 'cat /proc/cpuinfo | grep MHz'"
+	alias cpuinfo="$watch_bin -n1 'cat /proc/cpuinfo | grep MHz'"
 	alias meminfo='watch -n1 "awk '\'' 
 /MemTotal/ { total=\$2 }
 /(Cached|Buffers|MemAvailable|MemTotal|SwapTotal|SwapFree)/ {

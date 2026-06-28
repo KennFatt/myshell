@@ -11,3 +11,13 @@ MyShell is an organized and (personal) opionated collection of shell script for 
 ```
 
 2. Restart your shell session and done!
+
+### Diagnostics
+
+Run `myshell-doctor` to verify all expected tools are installed:
+
+```sh
+myshell-doctor
+```
+
+It checks 60+ tools across categories (core, dev, network, media, etc.). All are optional -- install what you need, ignore the rest.

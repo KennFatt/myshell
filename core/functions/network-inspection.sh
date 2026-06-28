@@ -24,7 +24,7 @@ ipcheck() {
 
   echo
   echo "=== Fail2ban matches ==="
-  sudo fail2ban-client banned 2>/dev/null | grep "$IP" || echo "IP is not currently shown as banned by fail2ban."
+  sudo $fail2ban_client_bin banned 2>/dev/null | grep "$IP" || echo "IP is not currently shown as banned by fail2ban."
 
   echo
   echo "=== Reverse DNS ==="
@@ -78,7 +78,7 @@ ipunban() {
 
 # Show all currently banned IPs from fail2ban
 f2blist() {
-  sudo fail2ban-client banned
+  sudo $fail2ban_client_bin banned
 }
 
 # Show detailed fail2ban status
