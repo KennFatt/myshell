@@ -136,4 +136,5 @@ if [[ -d $HOME/.pi ]]; then
 	export PI_HARNESS_MODEL_PATTERN=deepseek,mimo
 	export PI_HARNESS_CACHE_STRIP_REASONING=false
 	export PI_HARNESS_HASHLINES_ENABLED=false
+	export PI_HARNESS_STORMBREAKER_THRESHOLD=5
 fi

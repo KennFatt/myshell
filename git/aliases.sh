@@ -1,4 +1,6 @@
-alias git-most-active="$git_bin log --format=format: --name-only --since=12.month| egrep -v '^$' | sort | uniq -c | sort -nr | head -50"
+alias git-most-active="$git_bin log --format=format: --name-only --since=12.month | egrep -v '^$' | sort | uniq -c | sort -nr | head -50"
 alias git-uncommit="$git_bin reset --soft HEAD~1"
 alias git-get-head="$git_bin rev-parse HEAD"
 alias git-staged="$git_bin diff --name-only --cached"
+alias git-team-active="$git_bin log --pretty=format:\"%h - %an, %ar : %s\" --stat --since=\"30 days ago\""
+alias git-who-knows="$git_bin ls-files | xargs -n1 $git_bin blame --line-porcelain | grep \"^author \" | sort | uniq -c | sort -rg"
