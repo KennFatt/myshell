@@ -289,5 +289,8 @@ if [[ -x $fzf_bin ]]; then
 
 		cd "$target" || return 1
 		echo "Entered worktree: $target"
+		if [[ -x $vscode_bin ]]; then
+			$vscode_bin .
+		fi
 	}
 fi
