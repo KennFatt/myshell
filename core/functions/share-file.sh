@@ -32,25 +32,18 @@ sharefile() {
 
 	$ssh_bin "$SHAREFILE_REMOTE_HOST" "mkdir -p '$SHAREFILE_REMOTE_BASE/$date_dir'" 2>/dev/null || return 1
 
-	local urls original ext base safe_base id filename url
+	local urls original safe_filename id filename url
 	urls=""
 
 	for file in "$@"; do
 		original="$(basename "$file")"
 
-		if [[ "$original" == *.* ]]; then
-			ext="${original##*.}"
-			base="${original%.*}"
-		else
-			ext=""
-			base="$original"
-		fi
-
-		safe_base="$(printf "%s" "$base" |
+		# sanitize the entire filename (including extensions) for URL safety
+		safe_filename="$(printf "%s" "$original" |
 			tr '[:upper:]' '[:lower:]' |
 			sed 's/[^a-z0-9._-]/-/g; s/-\+/-/g; s/^-//; s/-$//')"
 
-		[ -n "$safe_base" ] || safe_base="file"
+		[ -n "$safe_filename" ] || safe_filename="file"
 
 		if command -v openssl >/dev/null 2>&1; then
 			id="$(openssl rand -hex 8)"
@@ -58,11 +51,8 @@ sharefile() {
 			id="$(date +%s)-$RANDOM"
 		fi
 
-		if [ -n "$ext" ]; then
-			filename="$safe_base-$id.$ext"
-		else
-			filename="$safe_base-$id"
-		fi
+		# prefix the ID to keep compound extensions (e.g. .user.js) intact
+		filename="$id-$safe_filename"
 
 		url="$SHAREFILE_PUBLIC_BASE/$date_dir/$filename"
 
@@ -255,9 +245,7 @@ sharefile-remove() {
       exit 1
     fi
 
-    dirs=\$(find \"\$base\" -mindepth 1 -maxdepth 1 -type d -name \"\$target\" | sort)
-    files=\$(find \"\$base\" -type f \( -name \"*-\$target\" -o -name \"*-\$target.*\" \) | sort)
-    matches=\$(printf '%s\n%s\n' \"\$dirs\" \"\$files\" | sed '/^\$/d')
+    matches=\$(find \"\$base\" -mindepth 1 \( -type f -o -type d \) -name \"*\$target*\" | sort)
 
     if [ -z \"\$matches\" ]; then
       echo \"No share found for target: \$target\"
@@ -274,12 +262,12 @@ sharefile-remove() {
       exit 1
     fi
 
-    printf '%s\n' \"\$dirs\" | sed '/^\$/d' | while read -r dir; do
-      rm -rf -- \"\$dir\"
-    done
-
-    printf '%s\n' \"\$files\" | sed '/^\$/d' | while read -r file; do
-      rm -f -- \"\$file\"
+    printf '%s\n' \"\$matches\" | while read -r path; do
+      if [ -d \"\$path\" ]; then
+        /bin/rm -rf -- \"\$path\"
+      else
+        /bin/rm -f -- \"\$path\"
+      fi
     done
 
     echo \"Removed share target: \$target\"
