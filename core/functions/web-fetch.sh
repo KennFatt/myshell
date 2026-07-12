@@ -100,7 +100,7 @@ _web-fetch-use-cache() {
 	if ! $web_fetch_no_cache && [ -f "$web_fetch_content_cache" ] && [ -f "$web_fetch_meta_cache" ]; then
 		local now cache_mtime
 		now="$(date +%s)"
-		cache_mtime="$(stat -f %m "$web_fetch_content_cache" 2>/dev/null || stat -c %Y "$web_fetch_content_cache" 2>/dev/null)"
+		cache_mtime="$(stat -c %Y "$web_fetch_content_cache" 2>/dev/null || stat -f %m "$web_fetch_content_cache" 2>/dev/null)"
 		if [ -n "$cache_mtime" ] && [ "$((now - cache_mtime))" -lt 86400 ]; then
 			use_cache=true
 		fi
