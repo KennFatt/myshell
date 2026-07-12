@@ -22,8 +22,6 @@ fi
 ## Rust (cargo)
 if [[ -d $HOME/.cargo ]]; then
 	export RUST_BIN=$HOME/.cargo/bin
-	# Init the Rust' environment.
-	. $HOME/.cargo/env
 fi
 
 ## Golang
@@ -46,9 +44,8 @@ if [[ -x $orbstackctl_bin ]]; then
 fi
 
 ## Python
-if [[ -d $HOME/.local/bin ]]; then
+if [[ -d $HOME/.local ]]; then
 	export PYTHON_LOCAL=$HOME/.local
-	export PATH=$PATH:$PYTHON_LOCAL/bin
 fi
 
 ## Node Version Manager (NVM)
