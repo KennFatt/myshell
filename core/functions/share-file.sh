@@ -300,11 +300,19 @@ sharefile-list() {
       exit 1
     fi
 
-    find \"\$base\" -type f | sort | while read -r file; do
+    find \"\$base\" -type f | sort -r | while read -r file; do
       rel=\${file#\"\$base\"/}
       printf '%s/%s\n' \"\$public\" \"\$rel\"
     done
   ")" || return 1
+
+	if [ -n "${1:-}" ]; then
+		urls="$(echo "$urls" | grep -i "$1")"
+		if [ -z "$urls" ]; then
+			echo "No files matching '$1' found."
+			return 0
+		fi
+	fi
 
 	if [ -z "$urls" ]; then
 		echo "No files found."
