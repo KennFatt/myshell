@@ -115,8 +115,14 @@ _convert-md-to-html--run-pandoc() {
 	local input_file="$1" output_file="$2" mermaid_config="$3"
 	local page_title="$4" use_custom_css="$5" custom_css="$6"
 
-	local default_css="${MY_SHELL_ROOT:-$HOME/.myshell}/assets/pandoc-style.css"
+	local asset_dir="${MY_SHELL_ROOT:-$HOME/.myshell}/assets"
+	local default_css="$asset_dir/pandoc-style.css"
+	local heading_permalink_header="$asset_dir/pandoc-heading-permalink.html"
 	local -a cmd=($pandoc_bin "$input_file" -s --toc -o "$output_file" --filter gazu --mathjax --embed-resources)
+
+	if [[ -f "$heading_permalink_header" ]]; then
+		cmd+=(--include-in-header "$heading_permalink_header")
+	fi
 
 	if [[ -n "$page_title" ]]; then
 		cmd+=(--variable "pagetitle=${page_title} | Kennan Fattahillah")

@@ -1,0 +1,90 @@
+<script>
+(function () {
+  "use strict";
+
+  function copyText(text) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      return navigator.clipboard.writeText(text).catch(function () {
+        return copyTextFallback(text);
+      });
+    }
+
+    return copyTextFallback(text);
+  }
+
+  function copyTextFallback(text) {
+    var textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+
+    var copied = document.execCommand("copy");
+    textarea.remove();
+
+    return copied
+      ? Promise.resolve()
+      : Promise.reject(new Error("Clipboard access is unavailable"));
+  }
+
+  function createPermalinkButton(heading) {
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "heading-permalink";
+    button.setAttribute("aria-label", "Copy link to this section");
+    button.title = "Copy link to this section";
+    button.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<path d="M10.59 13.41a1.996 1.996 0 0 0 2.82 0l3-3a1.996 1.996 0 1 0-2.82-2.82l-1.72 1.71"/>' +
+      '<path d="M13.41 10.59a1.996 1.996 0 0 0-2.82 0l-3 3a1.996 1.996 0 1 0 2.82 2.82l1.71-1.71"/>' +
+      '</svg>';
+
+    button.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      var url = new URL(window.location.href);
+      url.hash = heading.id;
+
+      copyText(url.toString())
+        .then(function () {
+          button.classList.add("is-copied");
+          button.setAttribute("aria-label", "Section link copied");
+          button.title = "Section link copied";
+
+          window.setTimeout(function () {
+            button.classList.remove("is-copied");
+            button.setAttribute("aria-label", "Copy link to this section");
+            button.title = "Copy link to this section";
+          }, 1500);
+        })
+        .catch(function () {
+          button.setAttribute("aria-label", "Could not copy section link");
+          button.title = "Could not copy section link";
+        });
+    });
+
+    heading.appendChild(button);
+  }
+
+  function initializeHeadingPermalinks() {
+    var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+
+    headings.forEach(function (heading) {
+      if (!Object.hasOwn(heading.dataset, "permalinkReady")) {
+        heading.dataset.permalinkReady = "";
+        createPermalinkButton(heading);
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeHeadingPermalinks);
+  } else {
+    initializeHeadingPermalinks();
+  }
+})();
+</script>
