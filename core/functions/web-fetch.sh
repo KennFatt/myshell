@@ -47,11 +47,105 @@ _web-fetch-parse-options() {
 	fi
 }
 
-_web-fetch-get-content-type() {
-	web_fetch_content_type="$($curl_bin -sI -L --max-time 10 "$web_fetch_url" 2>/dev/null | grep -i '^content-type:' | head -1 | cut -d: -f2- | sed 's/^[[:space:]]*//; s/[[:space:]]*$//; s/;.*//')"
+_web-fetch-http-status-name() {
+	case "$1" in
+		200) printf '%s\n' 'OK' ;;
+		201) printf '%s\n' 'Created' ;;
+		204) printf '%s\n' 'No Content' ;;
+		301) printf '%s\n' 'Moved Permanently' ;;
+		302) printf '%s\n' 'Found' ;;
+		304) printf '%s\n' 'Not Modified' ;;
+		400) printf '%s\n' 'Bad Request' ;;
+		401) printf '%s\n' 'Unauthorized' ;;
+		403) printf '%s\n' 'Forbidden' ;;
+		404) printf '%s\n' 'Not Found' ;;
+		405) printf '%s\n' 'Method Not Allowed' ;;
+		408) printf '%s\n' 'Request Timeout' ;;
+		409) printf '%s\n' 'Conflict' ;;
+		429) printf '%s\n' 'Too Many Requests' ;;
+		500) printf '%s\n' 'Internal Server Error' ;;
+		501) printf '%s\n' 'Not Implemented' ;;
+		502) printf '%s\n' 'Bad Gateway' ;;
+		503) printf '%s\n' 'Service Unavailable' ;;
+		504) printf '%s\n' 'Gateway Timeout' ;;
+		2??) printf '%s\n' 'Success' ;;
+		3??) printf '%s\n' 'Redirection' ;;
+		4??) printf '%s\n' 'Client Error' ;;
+		5??) printf '%s\n' 'Server Error' ;;
+		*) printf '%s\n' 'Unknown Status' ;;
+	esac
+}
+
+_web-fetch-report-http-status() {
+	echo "web-fetch: HTTP $1 $(_web-fetch-http-status-name "$1") for URL \"$web_fetch_url\"" >&2
+}
+
+_web-fetch-clean-probe() {
+	if [ -n "${web_fetch_probe_body:-}" ]; then
+		rm -f "$web_fetch_probe_body"
+	fi
+	web_fetch_probe_body=""
+}
+
+_web-fetch-probe() {
+	local probe_headers probe_body probe_status probe_stderr
+	local curl_exit curl_error
+	probe_headers="$(mktemp "$web_fetch_cache_dir/.headers.XXXXXX")" || return 1
+	probe_body="$(mktemp "$web_fetch_cache_dir/.probe.XXXXXX")" || {
+		rm -f "$probe_headers"
+		return 1
+	}
+	probe_status="$(mktemp "$web_fetch_cache_dir/.status.XXXXXX")" || {
+		rm -f "$probe_headers" "$probe_body"
+		return 1
+	}
+	probe_stderr="$(mktemp "$web_fetch_cache_dir/.stderr.XXXXXX")" || {
+		rm -f "$probe_headers" "$probe_body" "$probe_status"
+		return 1
+	}
+
+	"$curl_bin" -sS -L --max-time 30 \
+		-A "$web_fetch_user_agent" \
+		-D "$probe_headers" \
+		-o "$probe_body" \
+		-w '%{http_code}' \
+		"$web_fetch_url" > "$probe_status" 2> "$probe_stderr"
+	curl_exit=$?
+	web_fetch_http_status="$(cat "$probe_status")"
+	web_fetch_probe_body="$probe_body"
+
+	if [ $curl_exit -ne 0 ]; then
+		curl_error="$(tr '\n' ' ' < "$probe_stderr")"
+		rm -f "$probe_headers" "$probe_status" "$probe_stderr"
+		_web-fetch-clean-probe
+		echo "web-fetch: request failed (curl exit $curl_exit; HTTP ${web_fetch_http_status:-000}; ${curl_error:-transport error})" >&2
+		return 1
+	fi
+
+	web_fetch_content_type="$(awk '
+		tolower($0) ~ /^content-type:/ {
+			value=$0
+			sub(/^[^:]*:[[:space:]]*/, "", value)
+			sub(/[[:space:]]*;.*/, "", value)
+			gsub(/^[[:space:]]+/, "", value)
+			gsub(/[[:space:]]+$/, "", value)
+		}
+		END { print value }
+	' "$probe_headers")"
+	rm -f "$probe_headers" "$probe_status" "$probe_stderr"
+
+	case "$web_fetch_http_status" in
+		2??) ;;
+		*)
+			_web-fetch-report-http-status "$web_fetch_http_status"
+			_web-fetch-clean-probe
+			return 1
+			;;
+	esac
 
 	if [ -z "$web_fetch_content_type" ]; then
-		echo "web-fetch: could not determine Content-Type for URL \"$web_fetch_url\"" >&2
+		echo "web-fetch: could not determine Content-Type (HTTP $web_fetch_http_status $(_web-fetch-http-status-name "$web_fetch_http_status")) for URL \"$web_fetch_url\"" >&2
+		_web-fetch-clean-probe
 		return 1
 	fi
 
@@ -63,7 +157,8 @@ _web-fetch-get-content-type() {
 			web_fetch_mode=raw
 			;;
 		*)
-			echo "web-fetch: skipping (Content-Type: $web_fetch_content_type)" >&2
+			echo "web-fetch: skipping (HTTP $web_fetch_http_status $(_web-fetch-http-status-name "$web_fetch_http_status"); Content-Type: $web_fetch_content_type)" >&2
+			_web-fetch-clean-probe
 			return 1
 			;;
 	esac
@@ -91,8 +186,8 @@ _web-fetch-set-cache-paths() {
 }
 
 _web-fetch-write-metadata() {
-	printf 'fetched_at=%s\nurl=%s\ncontent_type=%s\n' \
-		"$(date -Iseconds)" "$web_fetch_url" "$web_fetch_content_type" > "$web_fetch_meta_cache"
+	printf 'fetched_at=%s\nurl=%s\nhttp_status=%s\ncontent_type=%s\n' \
+		"$(date -Iseconds)" "$web_fetch_url" "$web_fetch_http_status" "$web_fetch_content_type" > "$web_fetch_meta_cache"
 }
 
 _web-fetch-use-cache() {
@@ -134,41 +229,74 @@ _web-fetch-output-cache() {
 }
 
 _web-fetch-report-page-error() {
-	local error_text
+	local error_text status_code error_message
 	error_text="$(cat "$1" 2>/dev/null)"
-	local error_message
+	status_code="$(printf '%s\n' "$error_text" | sed -n 's/.*\([0-9][0-9][0-9]\) error.*/\1/p' | head -1)"
+	if [ -n "$status_code" ]; then
+		_web-fetch-report-http-status "$status_code"
+		return
+	fi
+
 	case "$error_text" in
-		*'404'*) error_message="404 Not Found" ;;
-		*'403'*) error_message="403 Forbidden" ;;
-		*'401'*) error_message="401 Unauthorized" ;;
-		*'500'*) error_message="500 Internal Server Error" ;;
-		*'502'*) error_message="502 Bad Gateway" ;;
-		*'503'*) error_message="503 Service Unavailable" ;;
 		*'ERR_TIMED_OUT'*|*'timeout'*|*'Timeout'*) error_message="Page timed out" ;;
 		*'ERR_CONNECTION_REFUSED'*|*'connection refused'*) error_message="Page unavailable" ;;
 		*'ERR_NAME_NOT_RESOLVED'*|*'Name or service not known'*) error_message="Page unavailable" ;;
 		*'ERR_ABORTED'*|*'Target closed'*) error_message="Page crashed" ;;
 		*) error_message="Page unavailable" ;;
 	esac
-	echo "web-fetch: $error_message" >&2
+	echo "web-fetch: $error_message${error_text:+ ($error_text)}" >&2
 }
 
-_web-fetch-fetch-html() {
-	if [ -z "${shot_scraper_bin:-}" ] || [ ! -x "$shot_scraper_bin" ]; then
-		echo "web-fetch: shot-scraper is not installed or not executable" >&2
-		return 1
-	fi
+_web-fetch-extract-html() {
+	local html_source="$1"
 	if [ -z "${trafilatura_bin:-}" ] || [ ! -x "$trafilatura_bin" ]; then
 		echo "web-fetch: trafilatura is not installed or not executable" >&2
 		return 1
 	fi
 
-	local html_cache="$web_fetch_cache_dir/$web_fetch_url_hash.html"
-	local ss_stderr
-	ss_stderr="$(mktemp "$web_fetch_cache_dir/.stderr.XXXXXX")" || return 1
+	local format_flag="--markdown"
+	$web_fetch_xml_mode && format_flag="--xml"
+	local extracted_cache
+	extracted_cache="$(mktemp "$web_fetch_cache_dir/.content.XXXXXX")" || return 1
 
-	"$shot_scraper_bin" html "$web_fetch_url" --wait "$web_fetch_wait_ms" --fail --silent > "$html_cache" 2> "$ss_stderr"
-	local ss_exit=$?
+	if ! "$trafilatura_bin" --no-comments --fast "$format_flag" < "$html_source" > "$extracted_cache" 2>/dev/null; then
+		rm -f "$extracted_cache"
+		return 1
+	fi
+
+	if [ ! -s "$extracted_cache" ]; then
+		rm -f "$extracted_cache"
+		return 1
+	fi
+
+	mv "$extracted_cache" "$web_fetch_content_cache" || {
+		rm -f "$extracted_cache"
+		return 1
+	}
+	_web-fetch-write-metadata
+	_web-fetch-output-cache
+}
+
+_web-fetch-fetch-html-browser() {
+	if [ -z "${shot_scraper_bin:-}" ] || [ ! -x "$shot_scraper_bin" ]; then
+		echo "web-fetch: shot-scraper is not installed or not executable" >&2
+		return 1
+	fi
+
+	local html_cache ss_stderr ss_exit
+	html_cache="$(mktemp "$web_fetch_cache_dir/.html.XXXXXX")" || return 1
+	ss_stderr="$(mktemp "$web_fetch_cache_dir/.stderr.XXXXXX")" || {
+		rm -f "$html_cache"
+		return 1
+	}
+
+	"$shot_scraper_bin" html "$web_fetch_url" \
+		--output "$html_cache" \
+		--user-agent "$web_fetch_user_agent" \
+		--wait "$web_fetch_wait_ms" \
+		--fail \
+		--silent 2> "$ss_stderr"
+	ss_exit=$?
 	if [ $ss_exit -ne 0 ]; then
 		_web-fetch-report-page-error "$ss_stderr"
 		rm -f "$ss_stderr" "$html_cache"
@@ -178,50 +306,42 @@ _web-fetch-fetch-html() {
 
 	if [ ! -s "$html_cache" ]; then
 		rm -f "$html_cache"
-		echo "web-fetch: page returned empty content" >&2
+		echo "web-fetch: browser response was empty (HTTP $web_fetch_http_status $(_web-fetch-http-status-name "$web_fetch_http_status"))" >&2
 		return 1
 	fi
 
-	local format_flag="--markdown"
-	$web_fetch_xml_mode && format_flag="--xml"
-	local traf_output
-	traf_output="$($trafilatura_bin --no-comments --formatting --links --with-metadata -f "$format_flag" < "$html_cache" 2>&1)"
-	if [ $? -ne 0 ]; then
-		echo "web-fetch: trafilatura extraction failed" >&2
+	if ! _web-fetch-extract-html "$html_cache"; then
+		rm -f "$html_cache"
+		echo "web-fetch: HTML extraction failed (HTTP $web_fetch_http_status $(_web-fetch-http-status-name "$web_fetch_http_status"))" >&2
 		return 1
 	fi
+	rm -f "$html_cache"
+}
 
-	if [ -z "$traf_output" ]; then
-		: > "$web_fetch_content_cache"
-		_web-fetch-write-metadata
-		echo "web-fetch: page extracted but produced no content" >&2
-		return 1
+_web-fetch-fetch-html() {
+	if _web-fetch-extract-html "$web_fetch_probe_body"; then
+		_web-fetch-clean-probe
+		return 0
 	fi
 
-	printf '%s\n' "$traf_output" > "$web_fetch_content_cache"
-	_web-fetch-write-metadata
-	_web-fetch-output-cache
+	_web-fetch-fetch-html-browser
+	local fetch_exit=$?
+	_web-fetch-clean-probe
+	return $fetch_exit
 }
 
 _web-fetch-fetch-raw() {
-	local raw_tmp
-	raw_tmp="$(mktemp "$web_fetch_cache_dir/.raw.XXXXXX")" || return 1
-
-	"$curl_bin" -sL --max-time 30 "$web_fetch_url" > "$raw_tmp" 2>&1
-	local curl_exit=$?
-	if [ $curl_exit -ne 0 ]; then
-		rm -f "$raw_tmp"
-		echo "web-fetch: fetch failed (curl exit $curl_exit)" >&2
+	if [ ! -s "$web_fetch_probe_body" ]; then
+		_web-fetch-clean-probe
+		echo "web-fetch: response was empty (HTTP $web_fetch_http_status $(_web-fetch-http-status-name "$web_fetch_http_status"))" >&2
 		return 1
 	fi
 
-	if [ ! -s "$raw_tmp" ]; then
-		rm -f "$raw_tmp"
-		echo "web-fetch: response was empty" >&2
+	mv "$web_fetch_probe_body" "$web_fetch_content_cache" || {
+		_web-fetch-clean-probe
 		return 1
-	fi
-
-	mv "$raw_tmp" "$web_fetch_content_cache" || return 1
+	}
+	web_fetch_probe_body=""
 	_web-fetch-write-metadata
 	_web-fetch-output-cache
 }
@@ -229,21 +349,33 @@ _web-fetch-fetch-raw() {
 web-fetch() {
 	web_fetch_url=""
 	web_fetch_xml_mode=false
-	web_fetch_wait_ms=2000
+	web_fetch_wait_ms=500
+	web_fetch_user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
 	web_fetch_no_cache=false
 	web_fetch_no_glow=false
 	web_fetch_max_lines=""
 
 	_web-fetch-parse-options "$@" || return 1
-	_web-fetch-get-content-type "$web_fetch_url" || return 1
-	_web-fetch-set-cache-paths || return 1
-	_web-fetch-use-cache && return 0
+	web_fetch_cache_dir="$HOME/.cache/web-fetch"
+	mkdir -p "$web_fetch_cache_dir" || return 1
+	_web-fetch-probe || return 1
+	_web-fetch-set-cache-paths || {
+		_web-fetch-clean-probe
+		return 1
+	}
+	if _web-fetch-use-cache; then
+		_web-fetch-clean-probe
+		return 0
+	fi
 
 	if [ "$web_fetch_mode" = "html" ]; then
-		_web-fetch-fetch-html || return 1
+		_web-fetch-fetch-html
 	else
-		_web-fetch-fetch-raw || return 1
+		_web-fetch-fetch-raw
 	fi
+	local fetch_exit=$?
+	_web-fetch-clean-probe
+	return $fetch_exit
 }
 
 web-fetch-purge() {
