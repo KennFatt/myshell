@@ -1,78 +1,84 @@
 _web-fetch-parse-options() {
 	while [ $# -gt 0 ]; do
 		case "$1" in
-			--xml) web_fetch_xml_mode=true ;;
-			--no-cache) web_fetch_no_cache=true ;;
-			--no-glow) web_fetch_no_glow=true ;;
-			--max-lines)
-				shift
-				web_fetch_max_lines="${1:-}"
-				case "$web_fetch_max_lines" in
-					''|*[!0-9]*)
-						echo "web-fetch: --max-lines must be a non-negative integer" >&2
-						return 1
-						;;
-				esac
-				;;
-			--wait)
-				shift
-				web_fetch_wait_ms="${1:-}"
-				case "$web_fetch_wait_ms" in
-					''|*[!0-9]*)
-						echo "web-fetch: --wait must be an integer (milliseconds)" >&2
-						return 1
-						;;
-				esac
-				;;
-			-*)
-				echo "web-fetch: unknown flag: $1" >&2
-				echo "Usage: web-fetch <url> [--xml] [--wait <ms>] [--max-lines <n>] [--no-cache] [--no-glow]" >&2
+		--xml) web_fetch_xml_mode=true ;;
+		--no-cache) web_fetch_no_cache=true ;;
+		--no-glow) web_fetch_no_glow=true ;;
+		--jobs)
+			shift
+			web_fetch_jobs="${1:-}"
+			case "$web_fetch_jobs" in
+			'' | *[!0-9]* | 0)
+				echo "web-fetch: --jobs must be a positive integer" >&2
 				return 1
 				;;
-			*)
-				if [ -z "$web_fetch_url" ]; then
-					web_fetch_url="$1"
-				else
-					echo "web-fetch: unexpected argument: $1" >&2
-					return 1
-				fi
+			esac
+			;;
+		--max-lines)
+			shift
+			web_fetch_max_lines="${1:-}"
+			case "$web_fetch_max_lines" in
+			'' | *[!0-9]*)
+				echo "web-fetch: --max-lines must be a non-negative integer" >&2
+				return 1
 				;;
+			esac
+			;;
+		--wait)
+			shift
+			web_fetch_wait_ms="${1:-}"
+			case "$web_fetch_wait_ms" in
+			'' | *[!0-9]*)
+				echo "web-fetch: --wait must be an integer (milliseconds)" >&2
+				return 1
+				;;
+			esac
+			;;
+		-*)
+			echo "web-fetch: unknown flag: $1" >&2
+			echo "Usage: web-fetch [options] <url> [url ...]" >&2
+			return 1
+			;;
+		*)
+			printf '%s\n' "$1" >>"$web_fetch_urls_file" || return 1
+			web_fetch_url_count=$((web_fetch_url_count + 1))
+			;;
 		esac
 		shift
 	done
 
-	if [ -z "$web_fetch_url" ]; then
-		echo "Usage: web-fetch <url> [--xml] [--wait <ms>] [--max-lines <n>] [--no-cache] [--no-glow]" >&2
+	if [ "$web_fetch_url_count" -eq 0 ]; then
+		echo "Usage: web-fetch [options] <url> [url ...]" >&2
 		return 1
 	fi
 }
 
 _web-fetch-http-status-name() {
 	case "$1" in
-		200) printf '%s\n' 'OK' ;;
-		201) printf '%s\n' 'Created' ;;
-		204) printf '%s\n' 'No Content' ;;
-		301) printf '%s\n' 'Moved Permanently' ;;
-		302) printf '%s\n' 'Found' ;;
-		304) printf '%s\n' 'Not Modified' ;;
-		400) printf '%s\n' 'Bad Request' ;;
-		401) printf '%s\n' 'Unauthorized' ;;
-		403) printf '%s\n' 'Forbidden' ;;
-		404) printf '%s\n' 'Not Found' ;;
-		405) printf '%s\n' 'Method Not Allowed' ;;
-		408) printf '%s\n' 'Request Timeout' ;;
-		409) printf '%s\n' 'Conflict' ;;
-		429) printf '%s\n' 'Too Many Requests' ;;
-		500) printf '%s\n' 'Internal Server Error' ;;
-		501) printf '%s\n' 'Not Implemented' ;;
-		502) printf '%s\n' 'Bad Gateway' ;;
-		503) printf '%s\n' 'Service Unavailable' ;;
-		504) printf '%s\n' 'Gateway Timeout' ;;
-		2??) printf '%s\n' 'Success' ;;
-		3??) printf '%s\n' 'Redirection' ;;
-		4??) printf '%s\n' 'Client Error' ;;
-		5??) printf '%s\n' 'Server Error' ;;
-		*) printf '%s\n' 'Unknown Status' ;;
+	200) printf '%s\n' 'OK' ;;
+	201) printf '%s\n' 'Created' ;;
+	204) printf '%s\n' 'No Content' ;;
+	301) printf '%s\n' 'Moved Permanently' ;;
+	302) printf '%s\n' 'Found' ;;
+	304) printf '%s\n' 'Not Modified' ;;
+	400) printf '%s\n' 'Bad Request' ;;
+	401) printf '%s\n' 'Unauthorized' ;;
+	403) printf '%s\n' 'Forbidden' ;;
+	404) printf '%s\n' 'Not Found' ;;
+	405) printf '%s\n' 'Method Not Allowed' ;;
+	408) printf '%s\n' 'Request Timeout' ;;
+	409) printf '%s\n' 'Conflict' ;;
+	429) printf '%s\n' 'Too Many Requests' ;;
+	500) printf '%s\n' 'Internal Server Error' ;;
+	501) printf '%s\n' 'Not Implemented' ;;
+	502) printf '%s\n' 'Bad Gateway' ;;
+	503) printf '%s\n' 'Service Unavailable' ;;
+	504) printf '%s\n' 'Gateway Timeout' ;;
+	2??) printf '%s\n' 'Success' ;;
+	3??) printf '%s\n' 'Redirection' ;;
+	4??) printf '%s\n' 'Client Error' ;;
+	5??) printf '%s\n' 'Server Error' ;;
+	*) printf '%s\n' 'Unknown Status' ;;
 	esac
 }
 
@@ -109,13 +115,13 @@ _web-fetch-probe() {
 		-D "$probe_headers" \
 		-o "$probe_body" \
 		-w '%{http_code}' \
-		"$web_fetch_url" > "$probe_status" 2> "$probe_stderr"
+		"$web_fetch_url" >"$probe_status" 2>"$probe_stderr"
 	curl_exit=$?
 	web_fetch_http_status="$(cat "$probe_status")"
 	web_fetch_probe_body="$probe_body"
 
 	if [ $curl_exit -ne 0 ]; then
-		curl_error="$(tr '\n' ' ' < "$probe_stderr")"
+		curl_error="$(tr '\n' ' ' <"$probe_stderr")"
 		rm -f "$probe_headers" "$probe_status" "$probe_stderr"
 		_web-fetch-clean-probe
 		echo "web-fetch: request failed (curl exit $curl_exit; HTTP ${web_fetch_http_status:-000}; ${curl_error:-transport error})" >&2
@@ -135,12 +141,12 @@ _web-fetch-probe() {
 	rm -f "$probe_headers" "$probe_status" "$probe_stderr"
 
 	case "$web_fetch_http_status" in
-		2??) ;;
-		*)
-			_web-fetch-report-http-status "$web_fetch_http_status"
-			_web-fetch-clean-probe
-			return 1
-			;;
+	2??) ;;
+	*)
+		_web-fetch-report-http-status "$web_fetch_http_status"
+		_web-fetch-clean-probe
+		return 1
+		;;
 	esac
 
 	if [ -z "$web_fetch_content_type" ]; then
@@ -150,17 +156,17 @@ _web-fetch-probe() {
 	fi
 
 	case "$web_fetch_content_type" in
-		text/html|application/xhtml+xml|text/xml|application/xml)
-			web_fetch_mode=html
-			;;
-		application/json|text/plain)
-			web_fetch_mode=raw
-			;;
-		*)
-			echo "web-fetch: skipping (HTTP $web_fetch_http_status $(_web-fetch-http-status-name "$web_fetch_http_status"); Content-Type: $web_fetch_content_type)" >&2
-			_web-fetch-clean-probe
-			return 1
-			;;
+	text/html | application/xhtml+xml | text/xml | application/xml)
+		web_fetch_mode=html
+		;;
+	application/json | text/plain)
+		web_fetch_mode=raw
+		;;
+	*)
+		echo "web-fetch: skipping (HTTP $web_fetch_http_status $(_web-fetch-http-status-name "$web_fetch_http_status"); Content-Type: $web_fetch_content_type)" >&2
+		_web-fetch-clean-probe
+		return 1
+		;;
 	esac
 }
 
@@ -179,15 +185,15 @@ _web-fetch-set-cache-paths() {
 		fi
 	else
 		case "$web_fetch_content_type" in
-			application/json) web_fetch_content_cache="$web_fetch_cache_dir/$web_fetch_url_hash.json" ;;
-			text/plain) web_fetch_content_cache="$web_fetch_cache_dir/$web_fetch_url_hash.txt" ;;
+		application/json) web_fetch_content_cache="$web_fetch_cache_dir/$web_fetch_url_hash.json" ;;
+		text/plain) web_fetch_content_cache="$web_fetch_cache_dir/$web_fetch_url_hash.txt" ;;
 		esac
 	fi
 }
 
 _web-fetch-write-metadata() {
 	printf 'fetched_at=%s\nurl=%s\nhttp_status=%s\ncontent_type=%s\n' \
-		"$(date -Iseconds)" "$web_fetch_url" "$web_fetch_http_status" "$web_fetch_content_type" > "$web_fetch_meta_cache"
+		"$(date -Iseconds)" "$web_fetch_url" "$web_fetch_http_status" "$web_fetch_content_type" >"$web_fetch_meta_cache"
 }
 
 _web-fetch-use-cache() {
@@ -220,7 +226,7 @@ _web-fetch-output-cache() {
 	fi
 
 	if [ "$web_fetch_mode" = "html" ] && ! $web_fetch_no_glow && ! $web_fetch_xml_mode && [ -t 1 ] && [ -n "${glow_bin:-}" ] && [ -x "$glow_bin" ]; then
-		"$glow_bin" - < "$web_fetch_content_cache"
+		"$glow_bin" - <"$web_fetch_content_cache"
 	elif [ "$web_fetch_mode" = "raw" ] && [ "$web_fetch_content_type" = "application/json" ] && [ -t 1 ] && [ -n "${jq_bin:-}" ] && [ -x "$jq_bin" ]; then
 		"$jq_bin" . "$web_fetch_content_cache"
 	else
@@ -238,11 +244,11 @@ _web-fetch-report-page-error() {
 	fi
 
 	case "$error_text" in
-		*'ERR_TIMED_OUT'*|*'timeout'*|*'Timeout'*) error_message="Page timed out" ;;
-		*'ERR_CONNECTION_REFUSED'*|*'connection refused'*) error_message="Page unavailable" ;;
-		*'ERR_NAME_NOT_RESOLVED'*|*'Name or service not known'*) error_message="Page unavailable" ;;
-		*'ERR_ABORTED'*|*'Target closed'*) error_message="Page crashed" ;;
-		*) error_message="Page unavailable" ;;
+	*'ERR_TIMED_OUT'* | *'timeout'* | *'Timeout'*) error_message="Page timed out" ;;
+	*'ERR_CONNECTION_REFUSED'* | *'connection refused'*) error_message="Page unavailable" ;;
+	*'ERR_NAME_NOT_RESOLVED'* | *'Name or service not known'*) error_message="Page unavailable" ;;
+	*'ERR_ABORTED'* | *'Target closed'*) error_message="Page crashed" ;;
+	*) error_message="Page unavailable" ;;
 	esac
 	echo "web-fetch: $error_message${error_text:+ ($error_text)}" >&2
 }
@@ -259,7 +265,7 @@ _web-fetch-extract-html() {
 	local extracted_cache
 	extracted_cache="$(mktemp "$web_fetch_cache_dir/.content.XXXXXX")" || return 1
 
-	if ! "$trafilatura_bin" --no-comments --fast "$format_flag" < "$html_source" > "$extracted_cache" 2>/dev/null; then
+	if ! "$trafilatura_bin" --no-comments --fast "$format_flag" <"$html_source" >"$extracted_cache" 2>/dev/null; then
 		rm -f "$extracted_cache"
 		return 1
 	fi
@@ -295,7 +301,7 @@ _web-fetch-fetch-html-browser() {
 		--user-agent "$web_fetch_user_agent" \
 		--wait "$web_fetch_wait_ms" \
 		--fail \
-		--silent 2> "$ss_stderr"
+		--silent 2>"$ss_stderr"
 	ss_exit=$?
 	if [ $ss_exit -ne 0 ]; then
 		_web-fetch-report-page-error "$ss_stderr"
@@ -346,16 +352,8 @@ _web-fetch-fetch-raw() {
 	_web-fetch-output-cache
 }
 
-web-fetch() {
-	web_fetch_url=""
-	web_fetch_xml_mode=false
-	web_fetch_wait_ms=500
-	web_fetch_user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
-	web_fetch_no_cache=false
-	web_fetch_no_glow=false
-	web_fetch_max_lines=""
-
-	_web-fetch-parse-options "$@" || return 1
+_web-fetch-one() {
+	web_fetch_url="$1"
 	web_fetch_cache_dir="$HOME/.cache/web-fetch"
 	mkdir -p "$web_fetch_cache_dir" || return 1
 	_web-fetch-probe || return 1
@@ -375,6 +373,85 @@ web-fetch() {
 	fi
 	local fetch_exit=$?
 	_web-fetch-clean-probe
+	return $fetch_exit
+}
+
+# Fetch one or more URLs. Options apply to every URL; multiple URLs run in
+# parallel (four at a time by default) and print in argument order.
+# Options: --jobs N, --xml, --wait MS, --max-lines N, --no-cache, --no-glow
+# Example: web-fetch --jobs 2 --max-lines 100 URL_A URL_B URL_C
+web-fetch() {
+	local urls_file output_dir url index output_file status_file
+	local active_jobs fetch_exit url_exit
+	web_fetch_xml_mode=false
+	web_fetch_wait_ms=500
+	web_fetch_user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+	web_fetch_no_cache=false
+	web_fetch_no_glow=false
+	web_fetch_max_lines=""
+	web_fetch_jobs=4
+	web_fetch_url_count=0
+	urls_file="$(mktemp "${TMPDIR:-/tmp}/web-fetch.urls.XXXXXX")" || return 1
+	web_fetch_urls_file="$urls_file"
+
+	if ! _web-fetch-parse-options "$@"; then
+		rm -f "$urls_file"
+		return 1
+	fi
+
+	if [ "$web_fetch_url_count" -eq 1 ]; then
+		IFS= read -r url <"$urls_file"
+		rm -f "$urls_file"
+		_web-fetch-one "$url"
+		return $?
+	fi
+
+	output_dir="$(mktemp -d "${TMPDIR:-/tmp}/web-fetch.output.XXXXXX")" || {
+		rm -f "$urls_file"
+		return 1
+	}
+	index=0
+	active_jobs=0
+	set --
+	while IFS= read -r url; do
+		index=$((index + 1))
+		output_file="$output_dir/$index.output"
+		status_file="$output_dir/$index.status"
+		printf '%s\n' "$url" >"$output_dir/$index.url"
+		(
+			if _web-fetch-one "$url"; then
+				url_exit=0
+			else
+				url_exit=$?
+			fi
+			printf '%s\n' "$url_exit" >"$status_file"
+		) >"$output_file" 2>&1 &
+		set -- "$@" "$!"
+		active_jobs=$((active_jobs + 1))
+		if [ "$active_jobs" -ge "$web_fetch_jobs" ]; then
+			wait "$1" || :
+			shift
+			active_jobs=$((active_jobs - 1))
+		fi
+	done <"$urls_file"
+	for url in "$@"; do
+		wait "$url" || :
+	done
+
+	fetch_exit=0
+	index=1
+	while [ "$index" -le "$web_fetch_url_count" ]; do
+		url="$(cat "$output_dir/$index.url")"
+		printf '===== %s =====\n\n' "$url"
+		cat "$output_dir/$index.output"
+		url_exit="$(cat "$output_dir/$index.status" 2>/dev/null)"
+		[ "$url_exit" = "0" ] || fetch_exit=1
+		[ "$index" -eq "$web_fetch_url_count" ] || printf '\n'
+		index=$((index + 1))
+	done
+
+	rm -rf "$output_dir"
+	rm -f "$urls_file"
 	return $fetch_exit
 }
 
