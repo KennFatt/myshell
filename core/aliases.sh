@@ -23,9 +23,6 @@ alias inxi="$inxi_bin -Fxz"
 # Network monitoring
 alias lsport="sudo $lsof_bin -i -P -n"
 
-# User level application
-alias garage="$docker_bin exec -it garage-s3_garage_1 /garage"
-
 if [[ -f $ufw_bin ]]; then
 	alias ufw-status="sudo $ufw_bin status verbose"
 	alias ufw-reload="sudo $ufw_bin reload"

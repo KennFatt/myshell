@@ -4,6 +4,8 @@ alias src-asm="$gcc_bin -S \$1 -o _src_asm.s"
 
 alias code-here="$vscode_bin --no-proxy-server . &; sleep 0.5; disown; exit;"
 
+alias fj='fj --style minimal'
+
 # Podman as docker
 if [[ -f $podman_bin ]]; then
 	alias docker="$podman_bin"
