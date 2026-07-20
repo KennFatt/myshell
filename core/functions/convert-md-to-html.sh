@@ -7,10 +7,12 @@
 #     -s          : Use custom CSS file (prompts if not specified)
 #     -T TITLE    : Override page title (default: first heading or filename)
 #     -n          : Do not open the generated HTML in the browser
+#     -k          : Keep the HTML file after opening in browser (default: delete)
 #     -h          : Show this help message
 convert-md-to-html() {
 	local input_file="" output_file="" mermaid_theme="default"
 	local custom_css="" use_custom_css=false page_title="" open_in_browser=true
+	local keep_html=false
 
 	_convert-md-to-html--parse-args "$@" || return $?
 
@@ -46,7 +48,15 @@ convert-md-to-html() {
 	if [[ $pandoc_exit -eq 0 ]]; then
 		echo "Conversion successful! Output saved to: $output_file"
 		if [[ "$open_in_browser" == true ]]; then
-			_convert-md-to-html--open-in-browser "$output_file"
+			if _convert-md-to-html--open-in-browser "$output_file"; then
+				if [[ "$keep_html" == false ]]; then
+					(
+						sleep 3
+						rm -f "$output_file"
+						echo "Cleaned up: $output_file"
+					) &
+				fi
+			fi
 		fi
 	else
 		echo "Conversion failed. Please check your input file and Pandoc installation."
@@ -68,6 +78,7 @@ _convert-md-to-html--parse-args() {
 			;;
 		-T | --title) page_title="$2"; shift 2 ;;
 		-n | --no-open) open_in_browser=false; shift ;;
+		-k | --keep) keep_html=true; shift ;;
 		-h | --help)
 			cat <<'HELP'
 Usage: convert-md-to-html [options] input.md [output.html]
@@ -77,6 +88,7 @@ Options:
   -s, --style [FILE]   Use custom CSS file (prompts if not specified)
   -T, --title TITLE    Override page title (default: first heading or filename)
   -n, --no-open        Do not open generated HTML in browser
+  -k, --keep           Keep HTML file after opening in browser (default: delete)
   -h, --help           Show this help message
 
 Examples:
@@ -85,6 +97,7 @@ Examples:
   convert-md-to-html -s custom.css document.md
   convert-md-to-html -T 'Matematika Semester 1' document.md
   convert-md-to-html -n document.md
+  convert-md-to-html -k document.md
 HELP
 			return 0
 			;;
