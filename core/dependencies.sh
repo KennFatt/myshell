@@ -62,6 +62,7 @@ uuidgen_bin="$(path_of uuidgen)"
 nvim_bin="$(path_of nvim)"
 vim_bin="$(path_of vim)"
 vscode_bin="$(path_of code-insiders)"
+cot_bin="$(path_of cot)"
 
 # CONTAINER - container engines
 docker_bin="$(path_of docker)"
@@ -110,7 +111,7 @@ MDS_CATEGORIES=(
 	"SHELL:lsd_bin:fzf_bin:fastfetch_bin:inxi_bin:rga_bin"
 	"NETWORK:ufw_bin:iftop_bin:ss_bin:dig_bin:nslookup_bin:fail2ban_client_bin:wg_bin:systemctl_bin:journalctl_bin"
 	"DEV:git_bin:node_bin:go_bin:python3_bin:cargo_bin:pandoc_bin:gazu_bin:wrk_bin:objdump_bin:gcc_bin:nanoid_bin:uuidgen_bin"
-	"EDITORS:nvim_bin:vim_bin:vscode_bin"
+	"EDITORS:nvim_bin:vim_bin:vscode_bin:cot_bin"
 	"CONTAINER:docker_bin:podman_bin:podman_compose_bin:orbstackctl_bin"
 	"MEDIA:pngquant_bin:optipng_bin:ffmpeg_bin:qrencode_bin"
 	"CLIPBOARD:pbcopy_bin:xclip_bin:xsel_bin:wl_copy_bin"

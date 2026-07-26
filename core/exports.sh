@@ -3,8 +3,7 @@ export CODEX_HOME=$HOME/.codex
 export MANLY_ROOT=$MYSPACE_HOME/memories
 export FJ_FALLBACK_HOST=https://git.kennfatt.dev
 
-# NVIM4life!
-if [[ -x $vim_bin ]]; then
-	export EDITOR=$vim_bin
-	export VISUAL=$vim_bin
+if [[ -x $cot_bin ]]; then
+	export EDITOR=$cot_bin
+	export VISUAL=$cot_bin
 fi
