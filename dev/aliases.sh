@@ -3,7 +3,7 @@ alias obj-asm="$objdump_bin -S --disassemble \$1 > \$1_obj_asm.s"
 alias src-asm="$gcc_bin -S \$1 -o _src_asm.s"
 
 alias code-here="$vscode_bin --no-proxy-server . &; sleep 0.5; disown; exit;"
-
+alias pi='pi --offline'
 alias fj='fj --style minimal'
 
 # Podman as docker
