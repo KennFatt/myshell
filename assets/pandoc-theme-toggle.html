@@ -1,0 +1,144 @@
+<style>
+  /* Floating dark/light theme toggle for pandoc-generated pages.
+     Colors come from the theme's CSS custom properties (pandoc-style.css),
+     with fallbacks so the button still renders without it. */
+  #theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid var(--border, #e5ddcc);
+    border-radius: 999px;
+    background: var(--surface, #f2ecdf);
+    color: var(--fg, #2b2620);
+    box-shadow: var(--shadow, 0 1px 2px rgba(80, 60, 30, 0.06), 0 4px 14px rgba(80, 60, 30, 0.07));
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, transform 0.15s;
+  }
+
+  #theme-toggle svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  #theme-toggle:hover {
+    color: var(--accent, #0f766e);
+    border-color: var(--accent, #0f766e);
+    transform: translateY(-1px);
+  }
+
+  @media print {
+    #theme-toggle {
+      display: none !important;
+    }
+  }
+</style>
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "pandoc-theme";
+  var root = document.documentElement;
+
+  function readPreference() {
+    try {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === "light" || stored === "dark") {
+        return stored;
+      }
+    } catch (e) {
+      /* localStorage unavailable (private mode, restricted file access) */
+    }
+    return null;
+  }
+
+  function storePreference(theme) {
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch (e) {
+      /* ignore write failures */
+    }
+  }
+
+  function prefersDark() {
+    return (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    );
+  }
+
+  function effectiveTheme() {
+    var stored = readPreference();
+    if (stored) {
+      return stored;
+    }
+    return prefersDark() ? "dark" : "light";
+  }
+
+  function createToggleButton() {
+    var button = document.createElement("button");
+    button.type = "button";
+    button.id = "theme-toggle";
+    button.innerHTML =
+      '<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<circle cx="12" cy="12" r="4"/>' +
+      '<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>' +
+      '</svg>' +
+      '<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>' +
+      '</svg>';
+
+    var sun = button.querySelector(".icon-sun");
+    var moon = button.querySelector(".icon-moon");
+
+    function updateButton() {
+      var dark = effectiveTheme() === "dark";
+      sun.style.display = dark ? "block" : "none";
+      moon.style.display = dark ? "none" : "block";
+      button.setAttribute(
+        "aria-label",
+        dark ? "Switch to light theme" : "Switch to dark theme"
+      );
+    }
+
+    button.addEventListener("click", function () {
+      var next = effectiveTheme() === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      storePreference(next);
+      updateButton();
+    });
+
+    document.body.appendChild(button);
+    updateButton();
+
+    if (window.matchMedia) {
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", updateButton);
+    }
+  }
+
+  /* Apply a stored override before the body renders to avoid a flash. */
+  var stored = readPreference();
+  if (stored) {
+    root.setAttribute("data-theme", stored);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", createToggleButton);
+  } else {
+    createToggleButton();
+  }
+})();
+</script>

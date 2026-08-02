@@ -131,10 +131,15 @@ _convert-md-to-html--run-pandoc() {
 	local asset_dir="${MY_SHELL_ROOT:-$HOME/.myshell}/assets"
 	local default_css="$asset_dir/pandoc-style.css"
 	local heading_permalink_header="$asset_dir/pandoc-heading-permalink.html"
+	local theme_toggle_header="$asset_dir/pandoc-theme-toggle.html"
 	local -a cmd=($pandoc_bin "$input_file" -s --toc -o "$output_file" --filter gazu --mathjax --embed-resources)
 
 	if [[ -f "$heading_permalink_header" ]]; then
 		cmd+=(--include-in-header "$heading_permalink_header")
+	fi
+
+	if [[ -f "$theme_toggle_header" ]]; then
+		cmd+=(--include-in-header "$theme_toggle_header")
 	fi
 
 	if [[ -n "$page_title" ]]; then
