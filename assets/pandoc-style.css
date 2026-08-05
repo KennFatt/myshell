@@ -266,15 +266,43 @@ code {
   font-variant-ligatures: none;
 }
 
+code:not(.sourceCode) {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 pre {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1.1rem 1.3rem;
   margin: 1.5rem 0;
   overflow-x: auto;
+  overflow-y: hidden;
   line-height: 1.55;
   box-shadow: var(--shadow);
+}
+
+div.sourceCode {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+pre.sourceCode {
+  overflow-x: auto;
+}
+
+pre > code.sourceCode {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  max-width: none;
 }
 
 pre code {
