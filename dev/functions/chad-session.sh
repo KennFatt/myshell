@@ -17,7 +17,7 @@ function chad-session() {
   local prompt_file="$session_dir/user.prompt.md"
 
   mkdir -p "$session_dir"
-  [ -f "$prompt_file" ] || touch "$prompt_file"
+  [ -f "$prompt_file" ] || printf '# %s\n\n' "$name" > "$prompt_file"
   cd $session_dir
   $EDITOR "$prompt_file"
 }

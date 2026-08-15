@@ -135,3 +135,11 @@ if [[ -d $HOME/.pi ]]; then
 	export PI_HARNESS_HASHLINES_ENABLED=false
 	export PI_HARNESS_STORMBREAKER_THRESHOLD=5
 fi
+
+if [[ -d $HOME/.agent-browser ]]; then
+	export AGENT_BROWSER_EXECUTABLE_PATH="/Applications/Chromium.app/Contents/MacOS/Chromium"
+	export AGENT_BROWSER_ALLOW_FILE_ACCESS=1
+	export NO_PROXY=1
+	export AGENT_BROWSER_STATE_EXPIRE_DAYS=1
+	export AGENT_BROWSER_IDLE_TIMEOUT_MS=5000
+fi
