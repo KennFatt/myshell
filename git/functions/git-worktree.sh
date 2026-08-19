@@ -20,6 +20,9 @@
 #   2. Existing branch?   -> create worktree + copy local changes + enter it, open in VS Code
 #   3. New branch?        -> create branch + worktree + copy local changes + enter it, open in VS Code
 #
+# Worktree folders live next to the repo as <unix-ts>-wt-<branch>,
+# e.g. 1700000000-wt-feat-auth, so every worktree is unique and historical.
+#
 # ==========================================================
 
 _wt_help() {
@@ -70,15 +73,19 @@ _wt_parent_dir() {
 	dirname "$(_wt_repo_root)"
 }
 
-# feat/auth -> wt-feat-auth
+# feat/auth -> wt-feat-auth (stamped at creation: 1700000000-wt-feat-auth)
 _wt_dir_name() {
 	local branch="$1"
 	echo "wt-${branch//\//-}"
 }
 
-_wt_worktree_path() {
+# Find an existing worktree dir for a branch, regardless of its timestamp.
+_wt_find_dir_by_branch() {
 	local branch="$1"
-	echo "$(_wt_parent_dir)/$(_wt_dir_name "$branch")"
+	local base
+	base="$(_wt_parent_dir)"
+
+	compgen -G "$base/[0-9]*-wt-${branch//\//-}" | sort -n | head -n 1
 }
 
 _wt_branch_exists() {
@@ -200,7 +207,7 @@ wt() {
 		existing="$(_wt_find_worktree "$branch")"
 
 		if [[ -z "$existing" ]]; then
-			existing="$(_wt_worktree_path "$branch")"
+			existing="$(_wt_find_dir_by_branch "$branch")"
 		fi
 
 		if [[ ! -d "$existing" ]]; then
@@ -247,8 +254,10 @@ wt() {
 	fi
 
 	local target
+	local ts
 
-	target="$(_wt_worktree_path "$branch")"
+	ts="$(date +%s)"
+	target="$(_wt_parent_dir)/${ts}-$(_wt_dir_name "$branch")"
 
 	if [[ -e "$target" ]]; then
 		echo "Path already exists: $target"
