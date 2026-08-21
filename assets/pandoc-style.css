@@ -458,20 +458,37 @@ sub, sup {
   color: var(--accent);
 }
 
-/* generic */
-.sourceCode .co { color: var(--syn-co); } /* comments */
-.sourceCode .dt { color: var(--syn-dt); } /* keys */
-.sourceCode .st { color: var(--syn-st); } /* strings */
-.sourceCode .dv { color: var(--syn-dv); } /* numbers */
-.sourceCode .op { color: var(--syn-op); } /* operators */
-.sourceCode .kw { color: var(--syn-kw); } /* keywords */
-
-/* bash / shell */
-.sourceCode .bu { color: var(--syn-bu); } /* builtins (echo, source) */
-.sourceCode .fu { color: var(--syn-fu); } /* functions (sudo, chmod) */
-.sourceCode .ex { color: var(--syn-ex); } /* executables (openssl) */
-.sourceCode .at { color: var(--syn-at); } /* attributes/flags (-i, -a) */
-.sourceCode .va { color: var(--syn-va); } /* variables ($VAR) */
+/* Pandoc/Skylighting token classes. These cover programming languages,
+   scripts, data formats, and markup supported by Pandoc. */
+.sourceCode .al,
+.sourceCode .er { color: var(--syn-op); font-weight: 600; } /* alert, error */
+.sourceCode .an,
+.sourceCode .co,
+.sourceCode .cv,
+.sourceCode .do { color: var(--syn-co); font-style: italic; } /* comments, docs */
+.sourceCode .at { color: var(--syn-at); } /* attribute */
+.sourceCode .bn,
+.sourceCode .dv,
+.sourceCode .fl { color: var(--syn-dv); } /* numbers */
+.sourceCode .bu { color: var(--syn-bu); } /* built-in */
+.sourceCode .cf,
+.sourceCode .kw { color: var(--syn-kw); font-weight: 600; } /* control flow, keyword */
+.sourceCode .ch,
+.sourceCode .sc { color: var(--syn-at); } /* character, special character */
+.sourceCode .cn { color: var(--syn-dv); } /* constant */
+.sourceCode .dt { color: var(--syn-dt); } /* data type */
+.sourceCode .ex { color: var(--syn-ex); } /* extension */
+.sourceCode .fu { color: var(--syn-fu); } /* function or YAML key */
+.sourceCode .im,
+.sourceCode .pp { color: var(--syn-bu); } /* import, preprocessor */
+.sourceCode .in { color: var(--syn-dt); font-style: italic; } /* information */
+.sourceCode .op { color: var(--syn-op); } /* operator */
+.sourceCode .ot { color: var(--syn-dt); } /* other */
+.sourceCode .ss,
+.sourceCode .st,
+.sourceCode .vs { color: var(--syn-st); } /* strings */
+.sourceCode .va { color: var(--syn-va); } /* variable */
+.sourceCode .wa { color: var(--syn-dv); font-weight: 600; } /* warning */
 
 * {
   scrollbar-width: thin;

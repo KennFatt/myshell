@@ -132,7 +132,12 @@ _convert-md-to-html--run-pandoc() {
 	local default_css="$asset_dir/pandoc-style.css"
 	local heading_permalink_header="$asset_dir/pandoc-heading-permalink.html"
 	local theme_toggle_header="$asset_dir/pandoc-theme-toggle.html"
+	local code_language_aliases_filter="$asset_dir/pandoc-code-language-aliases.lua"
 	local -a cmd=($pandoc_bin "$input_file" -s --toc -o "$output_file" --filter gazu --mathjax --embed-resources)
+
+	if [[ -f "$code_language_aliases_filter" ]]; then
+		cmd+=(--lua-filter "$code_language_aliases_filter")
+	fi
 
 	if [[ -f "$heading_permalink_header" ]]; then
 		cmd+=(--include-in-header "$heading_permalink_header")
