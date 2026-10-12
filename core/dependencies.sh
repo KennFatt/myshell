@@ -94,6 +94,9 @@ shot_scraper_bin="$(path_of shot-scraper)"
 trafilatura_bin="$(path_of trafilatura)"
 glow_bin="$(path_of glow)"
 
+# AGENT - AI coding agent CLIs
+pi_bolt_bin="$(path_of pi-bolt)"
+
 # CHROMIUM - special discovery with multi-binary fallback
 chromium_bin="$(
 	command -v chromium 2>/dev/null ||
@@ -117,5 +120,6 @@ MDS_CATEGORIES=(
 	"CLIPBOARD:pbcopy_bin:xclip_bin:xsel_bin:wl_copy_bin"
 	"PACKAGE_MANAGERS:apt_get_bin:brew_bin:dnf_bin:pacman_bin:yay_bin"
 	"WEB:shot_scraper_bin:trafilatura_bin:glow_bin"
+	"AGENT:pi_bolt_bin"
 	"SPECIAL:chromium_bin:jest_bin"
 )
