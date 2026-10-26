@@ -85,6 +85,10 @@ if [[ -d $HOME/.gvm ]]; then
 	export GVM_ROOT="$HOME/.gvm"
 	[[ -s "$GVM_ROOT/environments/default" ]] && source "$GVM_ROOT/environments/default"
 
+	# Keep go-installed tools in a stable bin dir so they survive `gvm use`
+	export GOBIN="$HOME/go/bin"
+	export PATH="$GOBIN:$PATH"
+
 	gvm() {
 		unset -f gvm 2>/dev/null || unset gvm
 		[[ -s "$GVM_ROOT/scripts/gvm" ]] && source "$GVM_ROOT/scripts/gvm"
