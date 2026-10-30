@@ -97,7 +97,7 @@ body {
   background: var(--bg);
   color: var(--fg);
   line-height: 1.8;
-  max-width: 52rem;
+  max-width: 96rem;
   margin: 0 auto;
   padding: 2rem 1.5rem 4rem;
   transition: background-color 0.25s, color 0.25s;
