@@ -146,4 +146,5 @@ if [[ -d $HOME/.agent-browser ]]; then
 	export NO_PROXY=1
 	export AGENT_BROWSER_STATE_EXPIRE_DAYS=1
 	export AGENT_BROWSER_IDLE_TIMEOUT_MS=5000
+	export AGENT_BROWSER_SCREENSHOT_DIR="$HOME/.pi/agent-screenshots"
 fi
