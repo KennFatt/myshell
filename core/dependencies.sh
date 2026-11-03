@@ -58,6 +58,11 @@ gcc_bin="$(path_of gcc)"
 nanoid_bin="$(path_of nanoid)"
 uuidgen_bin="$(path_of uuidgen)"
 
+# DATABASE - database clients
+mysql_bin="$(path_of mysql)"
+mysqldump_bin="$(path_of mysqldump)"
+mysqladmin_bin="$(path_of mysqladmin)"
+
 # EDITORS and IDEs
 nvim_bin="$(path_of nvim)"
 vim_bin="$(path_of vim)"
@@ -101,8 +106,8 @@ agent_browser_bin="$(path_of agent-browser)"
 # CHROMIUM - special discovery with multi-binary fallback
 chromium_bin="$(
 	command -v chromium 2>/dev/null ||
-	command -v chromium-browser 2>/dev/null ||
-	printf '%s\n' /Applications/Chromium.app/Contents/MacOS/Chromium
+		command -v chromium-browser 2>/dev/null ||
+		printf '%s\n' /Applications/Chromium.app/Contents/MacOS/Chromium
 )"
 
 # PROJECT-LOCAL - relative paths, not system-wide discoverable
@@ -115,6 +120,7 @@ MDS_CATEGORIES=(
 	"SHELL:lsd_bin:fzf_bin:fastfetch_bin:inxi_bin:rga_bin"
 	"NETWORK:ufw_bin:iftop_bin:ss_bin:dig_bin:nslookup_bin:fail2ban_client_bin:wg_bin:systemctl_bin:journalctl_bin"
 	"DEV:git_bin:node_bin:go_bin:python3_bin:cargo_bin:pandoc_bin:gazu_bin:wrk_bin:objdump_bin:gcc_bin:nanoid_bin:uuidgen_bin"
+	"DATABASE:mysql_bin:mysqldump_bin:mysqladmin_bin"
 	"EDITORS:nvim_bin:vim_bin:vscode_bin:cot_bin"
 	"CONTAINER:docker_bin:podman_bin:podman_compose_bin:orbstackctl_bin"
 	"MEDIA:pngquant_bin:optipng_bin:ffmpeg_bin:qrencode_bin"

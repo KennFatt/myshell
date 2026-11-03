@@ -4,6 +4,18 @@
 # Python user installs (pipx, pip --user)
 [ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
 
+# MySQL client (brew keg-only on macOS, so it is never linked into PATH)
+if [ "$(uname)" = "Darwin" ]; then
+	for _myshell_brew_prefix in /opt/homebrew /usr/local; do
+		_myshell_mysql_client_dir="$_myshell_brew_prefix/opt/mysql-client/bin"
+		if [ -d "$_myshell_mysql_client_dir" ]; then
+			export PATH="$_myshell_mysql_client_dir:$PATH"
+			break
+		fi
+	done
+	unset _myshell_brew_prefix _myshell_mysql_client_dir
+fi
+
 # myshell scripts — add to PATH so they're callable by name
 MYSHELL_SCRIPTS_DIR="$HOME/.myshell/scripts"
 if [ -d "$MYSHELL_SCRIPTS_DIR" ]; then
