@@ -39,11 +39,7 @@ prompts() {
 		return 0
 	fi
 
-	if [ -n "${EDITOR:-}" ] && command -v "$EDITOR" >/dev/null 2>&1; then
-		"$EDITOR" "$selected"
-	else
-		printf '%s\n' "$selected"
-	fi
+	editor-open "$selected"
 }
 
 prompts-create() {
@@ -97,11 +93,7 @@ prompts-create() {
 		return 1
 	fi
 
-	if [ -n "${EDITOR:-}" ] && command -v "$EDITOR" >/dev/null 2>&1; then
-		"$EDITOR" "$prompt_file"
-	else
-		printf '%s\n' "$prompt_file"
-	fi
+	editor-open "$prompt_file"
 }
 
 prompts-status() {
