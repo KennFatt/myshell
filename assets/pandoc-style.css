@@ -310,25 +310,38 @@ pre code {
   font-size: 1em;
 }
 
-table {
-  /* Stay inside the body column. Columns get a minimum width so text wraps
-     instead of squeezing into tall rows; if the columns still do not fit, the
-     table scrolls sideways inside its own box. !important: pandoc writes
-     style="width:99%" on some tables. */
-  display: block;
-  width: 100% !important;
-  max-width: 100% !important;
+/* Tables. pandoc-table-cell-clamp.lua wraps every table in
+   div.table-wrap, which is the box that scrolls: a <table> box cannot
+   overflow-scroll on its own. That keeps the page itself (and therefore the
+   centered reading column) from ever moving sideways while a wide table
+   scrolls inside its own strip. */
+.table-wrap {
+  /* Bleeds into the page gutter so a wide table has more room before it has
+     to scroll. Stays inside the body padding, so no page-level scrollbar. */
+  --table-bleed: 1.25rem;
+  margin: 1.75rem calc(-1 * var(--table-bleed));
   overflow-x: auto;
   overflow-y: hidden;
-  border-collapse: collapse;
-  margin: 1.75rem 0;
-  font-size: 0.94em;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Pandoc writes equal <col style="width: N%"> on pipe tables with long rows,
-   which gives "No" and "Answer" the same share as the text columns. Let the
-   browser size columns by content instead. */
+table {
+  /* Size columns by their content instead of squeezing them into the text
+     column: prose keeps a readable width and the wrapper scrolls for the
+     rest. min-width keeps short tables filling the strip. !important:
+     pandoc writes style="width:99%" on some tables. */
+  display: table;
+  width: max-content !important;
+  min-width: 100%;
+  max-width: none !important;
+  table-layout: auto;
+  border-collapse: collapse;
+  margin: 0;
+  font-size: 0.9em;
+}
+
+/* Pandoc writes equal <col style="width: N%"> on pipe tables, which gives
+   "No" and "Answer" the same share as the prose columns. */
 col {
   width: auto !important;
 }
@@ -338,10 +351,11 @@ thead {
 }
 
 th, td {
+  /* Cap how wide a single column can get so one long paragraph cannot
+     stretch its row into a second screen of scrolling. */
+  max-width: var(--table-col, 20rem);
   border-bottom: 1px solid var(--border);
-  padding: 0.6rem 0.7rem;
-  min-width: 9rem;
-  overflow-wrap: break-word;
+  padding: 0.55rem 0.65rem;
   text-align: left;
   vertical-align: top;
 }
@@ -349,6 +363,26 @@ th, td {
 th {
   font-weight: 600;
   border-bottom: 1px solid var(--accent-rule);
+  white-space: normal;
+  overflow-wrap: normal;
+}
+
+/* Body cells break long tokens (URLs, identifiers) rather than widening the
+   table, so wrapping only ever happens inside the capped column. */
+td {
+  overflow-wrap: anywhere;
+}
+
+/* Cell wrapper from pandoc-table-cell-clamp.lua: keep it transparent to
+   layout so the th/td rules above decide the wrapping. */
+td > .td-clamp,
+th > .td-clamp {
+  display: block;
+  white-space: normal;
+  overflow: visible;
+  min-width: 0;
+  max-width: none;
+  overflow-wrap: inherit;
 }
 
 ul, ol {
@@ -463,20 +497,48 @@ sub, sup {
   color: var(--accent);
 }
 
-/* Wide screens: pin the TOC to a sidebar left of the reading column. */
+/* Wide screens: pin the TOC to a sidebar left of the reading column,
+   vertically centered against the viewport, with a gap so the card never
+   touches the text. Translucent card so wide tables sliding under it stay
+   readable. */
 @media (min-width: 1280px) {
+  :root {
+    /* Card content width, plus its horizontal padding and borders, plus the
+       clear space between the card and the reading column. */
+    --toc-width: 15rem;
+    --toc-gap: 2rem;
+    --toc-box: calc(var(--toc-width) + 2.5rem);
+  }
+
+  /* Keep the table strip inside the reading column here: the gap that keeps
+     the card clear of the text is only --toc-gap wide, and it shrinks to a
+     few pixels on screens barely wide enough for the sidebar. */
+  .table-wrap {
+    --table-bleed: 0px;
+  }
+
   #TOC {
     position: fixed;
-    top: 4.5rem;
-    left: calc(50% - var(--measure) / 2 - 17.5rem);
-    width: 15rem;
-    max-height: calc(100vh - 6rem);
+    top: 50%;
+    /* Parked 10% in from the left edge of the viewport. The min() stops the
+       card from reaching the reading column on screens too narrow for that
+       offset, and max() keeps it on screen when even that does not fit. */
+    left: max(1rem, min(10vw, calc(50% - var(--measure) / 2 - var(--toc-box) - var(--toc-gap))));
+    transform: translateY(-50%);
+    width: var(--toc-width);
+    max-height: calc(100vh - 4rem);
     overflow-y: auto;
     margin: 0;
-    padding: 0;
-    background: none;
-    border: none;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    background: color-mix(in srgb, var(--surface) 82%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
     font-size: 0.875em;
+    z-index: 50;
   }
 
   #TOC h1 {
@@ -599,6 +661,9 @@ sub, sup {
 
   #TOC {
     position: static;
+    transform: none;
+    width: auto;
+    max-height: none;
     background: none;
     border: none;
     box-shadow: none;
@@ -614,7 +679,18 @@ sub, sup {
     display: none;
   }
 
-  table, pre {
+  .table-wrap {
+    --table-bleed: 0px;
+  }
+
+  table, .table-wrap, pre {
+    overflow: visible;
+  }
+
+  td > .td-clamp,
+  th > .td-clamp {
+    display: block;
+    white-space: normal;
     overflow: visible;
   }
 }
