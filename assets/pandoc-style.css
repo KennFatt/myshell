@@ -311,9 +311,13 @@ pre code {
 }
 
 table {
+  /* Stay inside the body column. Columns get a minimum width so text wraps
+     instead of squeezing into tall rows; if the columns still do not fit, the
+     table scrolls sideways inside its own box. !important: pandoc writes
+     style="width:99%" on some tables. */
   display: block;
-  width: 100%;
-  max-width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
   overflow-x: auto;
   overflow-y: hidden;
   border-collapse: collapse;
@@ -322,13 +326,22 @@ table {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Pandoc writes equal <col style="width: N%"> on pipe tables with long rows,
+   which gives "No" and "Answer" the same share as the text columns. Let the
+   browser size columns by content instead. */
+col {
+  width: auto !important;
+}
+
 thead {
   color: var(--heading);
 }
 
 th, td {
   border-bottom: 1px solid var(--border);
-  padding: 0.6rem 0.85rem;
+  padding: 0.6rem 0.7rem;
+  min-width: 9rem;
+  overflow-wrap: break-word;
   text-align: left;
   vertical-align: top;
 }
