@@ -1,27 +1,28 @@
-/* pandoc-style.css — "field notes" theme for convert-md-to-html
-   Warm paper, ink serif headings, verdigris accent.
-   Light + dark via prefers-color-scheme, print-ready. */
+/* pandoc-style.css - modern blog theme for convert-md-to-html
+   Narrow reading column, sans-serif type, neutral palette, teal accent.
+   Light + dark via prefers-color-scheme or the theme toggle, print-ready.
+   Wide screens (>= 1280px) pin the TOC to a left sidebar. */
 :root {
-  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace;
+  --measure: 42rem;
 
-  --bg: #faf6ee;
-  --fg: #2b2620;
-  --heading: #201c16;
-  --accent: #0f766e;
-  --accent-rule: rgba(15, 118, 110, 0.45);
-  --muted: #78716c;
-  --border: #e5ddcc;
-  --surface: #f2ecdf;
-  --code-bg: #efe8d9;
-  --math-bg: #f2ecdf;
-  --selection: rgba(15, 118, 110, 0.18);
-  --success: #4d7c0f;
-  --shadow: 0 1px 2px rgba(80, 60, 30, 0.06), 0 4px 14px rgba(80, 60, 30, 0.07);
+  --bg: #fcfcfb;
+  --fg: #2a2a31;
+  --heading: #111114;
+  --accent: #0d9488;
+  --accent-rule: rgba(13, 148, 136, 0.35);
+  --muted: #6b6b76;
+  --border: #e7e7ea;
+  --surface: #f4f4f6;
+  --code-bg: #f3f3f5;
+  --math-bg: #f4f4f6;
+  --selection: rgba(13, 148, 136, 0.18);
+  --success: #15803d;
+  --shadow: 0 1px 2px rgba(15, 15, 20, 0.04), 0 4px 16px rgba(15, 15, 20, 0.05);
 
   /* syntax highlighting (consumed by the .sourceCode rules below) */
-  --syn-co: #93897b;
+  --syn-co: #8a8a95;
   --syn-dt: #0f766e;
   --syn-st: #4d7c0f;
   --syn-dv: #b45309;
@@ -37,20 +38,20 @@
 /* Dark palette: applied when the theme toggle sets data-theme="dark",
    or when the OS prefers dark and no manual override is set. */
 :root[data-theme="dark"] {
-  --bg: #161310;
-  --fg: #e5dfd5;
-  --heading: #f2ede3;
-  --accent: #5eead4;
-  --accent-rule: rgba(94, 234, 212, 0.4);
-  --muted: #a39a8d;
-  --border: #322c25;
-  --surface: #1e1a16;
-  --code-bg: #221d18;
-  --math-bg: #1e1a16;
-  --selection: rgba(94, 234, 212, 0.25);
-  --success: #a3e635;
+  --bg: #0e1014;
+  --fg: #c9ccd4;
+  --heading: #f4f5f7;
+  --accent: #2dd4bf;
+  --accent-rule: rgba(45, 212, 191, 0.35);
+  --muted: #8b8f9a;
+  --border: #242830;
+  --surface: #161920;
+  --code-bg: #161a22;
+  --math-bg: #161920;
+  --selection: rgba(45, 212, 191, 0.25);
+  --success: #4ade80;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.3);
-  --syn-co: #9b9183;
+  --syn-co: #7d8290;
   --syn-dt: #2dd4bf;
   --syn-st: #a3e635;
   --syn-dv: #fbbf24;
@@ -65,20 +66,20 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #161310;
-    --fg: #e5dfd5;
-    --heading: #f2ede3;
-    --accent: #5eead4;
-    --accent-rule: rgba(94, 234, 212, 0.4);
-    --muted: #a39a8d;
-    --border: #322c25;
-    --surface: #1e1a16;
-    --code-bg: #221d18;
-    --math-bg: #1e1a16;
-    --selection: rgba(94, 234, 212, 0.25);
-    --success: #a3e635;
+    --bg: #0e1014;
+    --fg: #c9ccd4;
+    --heading: #f4f5f7;
+    --accent: #2dd4bf;
+    --accent-rule: rgba(45, 212, 191, 0.35);
+    --muted: #8b8f9a;
+    --border: #242830;
+    --surface: #161920;
+    --code-bg: #161a22;
+    --math-bg: #161920;
+    --selection: rgba(45, 212, 191, 0.25);
+    --success: #4ade80;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.3);
-    --syn-co: #9b9183;
+    --syn-co: #7d8290;
     --syn-dt: #2dd4bf;
     --syn-st: #a3e635;
     --syn-dv: #fbbf24;
@@ -94,12 +95,13 @@
 
 body {
   font-family: var(--font-sans);
+  font-size: 1.0625rem;
   background: var(--bg);
   color: var(--fg);
-  line-height: 1.8;
-  max-width: 96rem;
+  line-height: 1.75;
+  max-width: var(--measure);
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 4.5rem 1.5rem 6rem;
   transition: background-color 0.25s, color 0.25s;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -114,39 +116,42 @@ body {
   outline-offset: 2px;
 }
 
+p {
+  margin: 1.1em 0;
+}
+
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   color: var(--heading);
-  font-weight: 600;
-  line-height: 1.25;
-  margin-top: 2.25rem;
-  margin-bottom: 0.8rem;
-  scroll-margin-top: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  scroll-margin-top: 2rem;
 }
 
 h1 {
-  font-size: clamp(1.85rem, 2vw + 1.05rem, 2.5rem);
-  border-top: 3px solid var(--accent-rule);
-  padding-top: 1.1rem;
+  font-size: clamp(2rem, 1.5vw + 1.4rem, 2.6rem);
+  letter-spacing: -0.03em;
+  margin-top: 2rem;
 }
 
 h2 {
-  font-size: 1.5rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.3rem;
+  font-size: 1.6rem;
+  margin-top: 3.25rem;
 }
 
 h3 { font-size: 1.25rem; }
-h4 { font-size: 1.1rem; }
+h4 { font-size: 1.05rem; }
 
 h5, h6 {
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted);
-  margin-top: 1.75rem;
+  margin-top: 2rem;
 }
 
 .heading-permalink {
@@ -212,37 +217,31 @@ h6:hover .heading-permalink,
 
 a {
   color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px dotted var(--accent-rule);
-  transition: color 0.15s, border-color 0.15s;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--accent-rule);
+  transition: text-decoration-color 0.15s, color 0.15s;
 }
 
 a:hover {
-  border-bottom-style: solid;
-  border-bottom-color: var(--accent);
+  text-decoration-color: var(--accent);
 }
 
 hr {
   border: none;
-  margin: 2.5rem 0;
-  text-align: center;
-}
-
-hr::after {
-  content: "\00b7 \00b7 \00b7";
-  color: var(--muted);
-  letter-spacing: 0.5em;
-  padding-left: 0.5em;
+  height: 1px;
+  background: var(--border);
+  margin: 3rem 0;
 }
 
 blockquote {
+  margin: 1.75rem 0;
+  padding: 0.9rem 1.25rem;
+  background: var(--surface);
   border-left: 3px solid var(--accent);
-  margin: 1.5rem 0;
-  padding: 0.1rem 0 0.1rem 1.25rem;
-  color: var(--muted);
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 1.05em;
+  border-radius: 0 10px 10px 0;
+  color: var(--fg);
 }
 
 blockquote p {
@@ -259,10 +258,10 @@ blockquote p:last-child {
 
 code {
   font-family: var(--font-mono);
-  font-size: 0.875em;
+  font-size: 0.85em;
   background: var(--code-bg);
-  padding: 0.18em 0.4em;
-  border-radius: 5px;
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
   font-variant-ligatures: none;
 }
 
@@ -278,13 +277,13 @@ pre {
   box-sizing: border-box;
   background: var(--code-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.1rem 1.3rem;
-  margin: 1.5rem 0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin: 1.75rem 0;
   overflow-x: auto;
   overflow-y: hidden;
-  line-height: 1.55;
-  box-shadow: var(--shadow);
+  font-size: 0.875rem;
+  line-height: 1.6;
 }
 
 div.sourceCode {
@@ -308,7 +307,7 @@ pre > code.sourceCode {
 pre code {
   background: none;
   padding: 0;
-  font-size: 0.9em;
+  font-size: 1em;
 }
 
 table {
@@ -318,38 +317,34 @@ table {
   overflow-x: auto;
   overflow-y: hidden;
   border-collapse: collapse;
-  margin: 1.5rem 0;
-  font-size: 0.95em;
-  white-space: nowrap;
+  margin: 1.75rem 0;
+  font-size: 0.94em;
   -webkit-overflow-scrolling: touch;
 }
 
 thead {
-  background: var(--surface);
+  color: var(--heading);
 }
 
 th, td {
-  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   padding: 0.6rem 0.85rem;
   text-align: left;
+  vertical-align: top;
 }
 
 th {
   font-weight: 600;
-  border-bottom: 2px solid var(--accent-rule);
-}
-
-tr:nth-child(even) {
-  background: var(--surface);
+  border-bottom: 1px solid var(--accent-rule);
 }
 
 ul, ol {
   padding-left: 1.5rem;
-  margin: 0.75rem 0;
+  margin: 0.85rem 0;
 }
 
 li {
-  margin: 0.3rem 0;
+  margin: 0.35rem 0;
 }
 
 li > ul, li > ol {
@@ -357,13 +352,13 @@ li > ul, li > ol {
 }
 
 li::marker {
-  color: var(--accent);
+  color: var(--muted);
 }
 
 img {
   max-width: 100%;
   height: auto;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
@@ -377,11 +372,10 @@ mjx-container {
 mjx-container[display="true"] {
   background: var(--math-bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 0.9rem 1rem;
-  margin: 1.5rem 0;
+  margin: 1.75rem 0;
   overflow-x: auto;
-  box-shadow: var(--shadow);
 }
 
 mjx-container:not([display="true"]) {
@@ -390,12 +384,11 @@ mjx-container:not([display="true"]) {
 
 .mermaid {
   text-align: center;
-  margin: 1.5rem 0;
+  margin: 1.75rem 0;
   padding: 1.25rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: var(--shadow);
+  border-radius: 12px;
 }
 
 .mermaid svg {
@@ -412,26 +405,25 @@ sub, sup {
   font-size: 0.75em;
 }
 
-/* pandoc --toc table of contents */
+/* pandoc --toc table of contents: inline card on narrow screens */
 #TOC {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.1rem 1.4rem;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
   margin: 0.5rem 0 2.5rem;
-  font-size: 0.95em;
+  font-size: 0.92em;
+  line-height: 1.5;
 }
 
 #TOC h1 {
   font-family: var(--font-sans);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   color: var(--muted);
   margin: 0 0 0.6rem;
-  border: none;
-  padding: 0;
 }
 
 #TOC ul {
@@ -441,21 +433,42 @@ sub, sup {
 }
 
 #TOC ul ul {
-  padding-left: 1.2rem;
+  padding-left: 1rem;
   margin: 0.1rem 0;
 }
 
 #TOC li {
-  margin: 0.15rem 0;
+  margin: 0.2rem 0;
 }
 
 #TOC a {
   color: var(--fg);
-  border-bottom: none;
+  text-decoration: none;
 }
 
 #TOC a:hover {
   color: var(--accent);
+}
+
+/* Wide screens: pin the TOC to a sidebar left of the reading column. */
+@media (min-width: 1280px) {
+  #TOC {
+    position: fixed;
+    top: 4.5rem;
+    left: calc(50% - var(--measure) / 2 - 17.5rem);
+    width: 15rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: 0.875em;
+  }
+
+  #TOC h1 {
+    margin-bottom: 0.75rem;
+  }
 }
 
 /* Pandoc/Skylighting token classes. These cover programming languages,
@@ -490,6 +503,29 @@ sub, sup {
 .sourceCode .va { color: var(--syn-va); } /* variable */
 .sourceCode .wa { color: var(--syn-dv); font-weight: 600; } /* warning */
 
+/* Reading progress bar (scroll-driven; browsers without support skip it). */
+@supports (animation-timeline: scroll()) {
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    animation: reading-progress linear both;
+    animation-timeline: scroll(root block);
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  @keyframes reading-progress {
+    to { transform: scaleX(1); }
+  }
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--muted) transparent;
@@ -522,6 +558,7 @@ sub, sup {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition: none !important;
+    animation: none !important;
   }
 }
 
@@ -534,22 +571,27 @@ sub, sup {
     color: #000000;
   }
 
+  body::before {
+    display: none;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     color: #000000;
   }
 
   a {
-    border-bottom: none;
+    text-decoration: none;
     color: #000000;
   }
 
   #TOC {
+    position: static;
     background: none;
     border: none;
     box-shadow: none;
   }
 
-  pre, mjx-container[display="true"], .mermaid, img {
+  pre, mjx-container[display="true"], .mermaid, img, blockquote {
     background: none;
     border: none;
     box-shadow: none;
