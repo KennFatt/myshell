@@ -60,4 +60,5 @@ fi
 if [ "$(uname)" = "Darwin" ]; then
 	# Quickly fix local network routing issues
 	alias flushdns='sudo route flush && sudo ifconfig en0 down && sudo ifconfig en0 up && sudo ipconfig set en0 DHCP && echo "✅ Network routes flushed and renewed."'
+	alias markedit='open -a MarkEdit'
 fi
