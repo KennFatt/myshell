@@ -1,110 +1,143 @@
-/* pandoc-style.css - modern blog theme for convert-md-to-html
-   Narrow reading column, sans-serif type, neutral palette, teal accent.
+/* pandoc-style.css - reading theme for convert-md-to-html
+   Serif body copy, sans display headings, warm neutral palette with a single
+   orange accent. Palette, 780px measure, and type scale follow rakshazi.me.
    Light + dark via prefers-color-scheme or the theme toggle, print-ready.
    Wide screens (>= 1280px) pin the TOC to a left sidebar. */
 :root {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace;
-  --measure: 42rem;
+  --font-body: "Source Serif 4", Charter, Georgia, "Times New Roman", serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Cascadia Code NF", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --measure: 780px;
+  --line-height: 1.6;
+  --radius: 4px;
 
-  --bg: #fcfcfb;
-  --fg: #2a2a31;
-  --heading: #111114;
-  --accent: #0d9488;
-  --accent-rule: rgba(13, 148, 136, 0.35);
-  --muted: #6b6b76;
-  --border: #e7e7ea;
-  --surface: #f4f4f6;
-  --code-bg: #f3f3f5;
-  --math-bg: #f4f4f6;
-  --selection: rgba(13, 148, 136, 0.18);
-  --success: #15803d;
-  --shadow: 0 1px 2px rgba(15, 15, 20, 0.04), 0 4px 16px rgba(15, 15, 20, 0.05);
+  --bg: #fafaf7;
+  --fg: #1a1a1a;
+  --heading: #1a1a1a;
+  --accent: #b84800;
+  --accent-soft: #8a3600;
+  --muted: #5a5a57;
+  --subtle: #8a8a85;
+  --border: #e3e1db;
+  --surface: #f1f0eb;
+  --code-bg: #edece7;
+  --math-bg: #f1f0eb;
+  --selection: rgba(184, 72, 0, 0.15);
+  --success: #4a6b35;
+  --shadow: 0 1px 2px rgba(26, 26, 26, 0.05), 0 6px 18px rgba(26, 26, 26, 0.06);
 
   /* syntax highlighting (consumed by the .sourceCode rules below) */
-  --syn-co: #8a8a95;
-  --syn-dt: #0f766e;
-  --syn-st: #4d7c0f;
-  --syn-dv: #b45309;
-  --syn-op: #be185d;
-  --syn-kw: #7c3aed;
-  --syn-bu: #c2410c;
-  --syn-fu: #0e7490;
-  --syn-ex: #2f855a;
-  --syn-at: #a16207;
-  --syn-va: #be185d;
+  --syn-co: #8a8a85;
+  --syn-dt: #8a3600;
+  --syn-st: #5c6b32;
+  --syn-dv: #b84800;
+  --syn-op: #a03c1a;
+  --syn-kw: #b84800;
+  --syn-bu: #94652a;
+  --syn-fu: #2f5f77;
+  --syn-ex: #4a6b35;
+  --syn-at: #7d5c22;
+  --syn-va: #8c4038;
 }
 
 /* Dark palette: applied when the theme toggle sets data-theme="dark",
    or when the OS prefers dark and no manual override is set. */
 :root[data-theme="dark"] {
-  --bg: #0e1014;
-  --fg: #c9ccd4;
-  --heading: #f4f5f7;
-  --accent: #2dd4bf;
-  --accent-rule: rgba(45, 212, 191, 0.35);
-  --muted: #8b8f9a;
-  --border: #242830;
-  --surface: #161920;
-  --code-bg: #161a22;
-  --math-bg: #161920;
-  --selection: rgba(45, 212, 191, 0.25);
-  --success: #4ade80;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.3);
-  --syn-co: #7d8290;
-  --syn-dt: #2dd4bf;
-  --syn-st: #a3e635;
-  --syn-dv: #fbbf24;
-  --syn-op: #f9a8d4;
-  --syn-kw: #c4b5fd;
-  --syn-bu: #fdba74;
-  --syn-fu: #67e8f9;
-  --syn-ex: #86efac;
-  --syn-at: #fcd34d;
-  --syn-va: #f9a8d4;
+  --bg: #0f1012;
+  --fg: #e8e6e1;
+  --heading: #e8e6e1;
+  --accent: #ff7a1a;
+  --accent-soft: #ffb27a;
+  --muted: #9a9893;
+  --subtle: #6b6965;
+  --border: #2a2c30;
+  --surface: #17181b;
+  --code-bg: #1c1e22;
+  --math-bg: #17181b;
+  --selection: rgba(255, 122, 26, 0.25);
+  --success: #9cc48f;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 22px rgba(0, 0, 0, 0.4);
+  --syn-co: #6f737b;
+  --syn-dt: #e8b98a;
+  --syn-st: #b9c98f;
+  --syn-dv: #ffb27a;
+  --syn-op: #d98c6a;
+  --syn-kw: #ff7a1a;
+  --syn-bu: #e0a05a;
+  --syn-fu: #8fb3c9;
+  --syn-ex: #9cc48f;
+  --syn-at: #c9a06a;
+  --syn-va: #d4a08a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0e1014;
-    --fg: #c9ccd4;
-    --heading: #f4f5f7;
-    --accent: #2dd4bf;
-    --accent-rule: rgba(45, 212, 191, 0.35);
-    --muted: #8b8f9a;
-    --border: #242830;
-    --surface: #161920;
-    --code-bg: #161a22;
-    --math-bg: #161920;
-    --selection: rgba(45, 212, 191, 0.25);
-    --success: #4ade80;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.3);
-    --syn-co: #7d8290;
-    --syn-dt: #2dd4bf;
-    --syn-st: #a3e635;
-    --syn-dv: #fbbf24;
-    --syn-op: #f9a8d4;
-    --syn-kw: #c4b5fd;
-    --syn-bu: #fdba74;
-    --syn-fu: #67e8f9;
-    --syn-ex: #86efac;
-    --syn-at: #fcd34d;
-    --syn-va: #f9a8d4;
+    --bg: #0f1012;
+    --fg: #e8e6e1;
+    --heading: #e8e6e1;
+    --accent: #ff7a1a;
+    --accent-soft: #ffb27a;
+    --muted: #9a9893;
+    --subtle: #6b6965;
+    --border: #2a2c30;
+    --surface: #17181b;
+    --code-bg: #1c1e22;
+    --math-bg: #17181b;
+    --selection: rgba(255, 122, 26, 0.25);
+    --success: #9cc48f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 22px rgba(0, 0, 0, 0.4);
+    --syn-co: #6f737b;
+    --syn-dt: #e8b98a;
+    --syn-st: #b9c98f;
+    --syn-dv: #ffb27a;
+    --syn-op: #d98c6a;
+    --syn-kw: #ff7a1a;
+    --syn-bu: #e0a05a;
+    --syn-fu: #8fb3c9;
+    --syn-ex: #9cc48f;
+    --syn-at: #c9a06a;
+    --syn-va: #d4a08a;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 17px;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 18px;
   }
 }
 
 body {
-  font-family: var(--font-sans);
-  font-size: 1.0625rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
   background: var(--bg);
   color: var(--fg);
-  line-height: 1.75;
-  max-width: var(--measure);
+  line-height: var(--line-height);
+  font-feature-settings: "kern" 1, "liga" 1;
+  /* The measure is the text column; the horizontal padding sits outside it. */
+  max-width: calc(var(--measure) + 4rem);
   margin: 0 auto;
-  padding: 4.5rem 1.5rem 6rem;
+  padding: 3rem 2rem 5rem;
   transition: background-color 0.25s, color 0.25s;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+@media (max-width: 767px) {
+  body {
+    padding: 2rem 1.25rem 3.5rem;
+  }
 }
 
 ::selection {
@@ -117,41 +150,65 @@ body {
 }
 
 p {
-  margin: 1.1em 0;
+  margin: 0 0 1em;
+}
+
+strong {
+  color: var(--fg);
+  font-weight: 600;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
   color: var(--heading);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  margin-top: 2.5rem;
-  margin-bottom: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
   scroll-margin-top: 2rem;
 }
 
 h1 {
-  font-size: clamp(2rem, 1.5vw + 1.4rem, 2.6rem);
-  letter-spacing: -0.03em;
-  margin-top: 2rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
+/* The document title opens the page: no extra air above it. (not
+   :first-child, pandoc puts the TOC nav ahead of it.) */
+body > h1:first-of-type {
+  margin-top: 0;
+}
+
+/* Section labels: small, spaced, uppercase, ruled. */
 h2 {
-  font-size: 1.6rem;
-  margin-top: 3.25rem;
-}
-
-h3 { font-size: 1.25rem; }
-h4 { font-size: 1.05rem; }
-
-h5, h6 {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted);
-  margin-top: 2rem;
+  margin-top: 2.75em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid var(--border);
+}
+
+h3 {
+  font-size: 1.15rem;
+  color: var(--fg);
+}
+
+h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+h5, h6 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--subtle);
+  margin-top: 1.75em;
 }
 
 .heading-permalink {
@@ -163,9 +220,9 @@ h5, h6 {
   margin-left: 0.4em;
   padding: 0.2em;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius);
   background: transparent;
-  color: var(--muted);
+  color: var(--subtle);
   cursor: pointer;
   opacity: 0;
   transform: translateX(-0.25em);
@@ -215,54 +272,63 @@ h6:hover .heading-permalink,
   }
 }
 
+/* Links carry a rule instead of an underline, so they sit on the baseline
+   of the serif text without cutting through descenders. */
 a {
   color: var(--accent);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  text-decoration-color: var(--accent-rule);
-  transition: text-decoration-color 0.15s, color 0.15s;
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent);
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-a:hover {
-  text-decoration-color: var(--accent);
+a:hover,
+a:focus-visible {
+  color: var(--accent-soft);
+  border-bottom-color: var(--accent-soft);
 }
 
 hr {
   border: none;
-  height: 1px;
-  background: var(--border);
-  margin: 3rem 0;
+  border-top: 1px solid var(--border);
+  margin: 2.5em 0;
 }
 
 blockquote {
-  margin: 1.75rem 0;
-  padding: 0.9rem 1.25rem;
+  margin: 1.5em 0;
+  padding: 0.8em 1.2em;
   background: var(--surface);
   border-left: 3px solid var(--accent);
-  border-radius: 0 10px 10px 0;
-  color: var(--fg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--muted);
+  font-style: italic;
 }
 
 blockquote p {
-  margin: 0.4rem 0;
-}
-
-blockquote p:first-child {
-  margin-top: 0;
+  margin: 0 0 1em;
 }
 
 blockquote p:last-child {
   margin-bottom: 0;
 }
 
-code {
+blockquote code,
+blockquote strong {
+  font-style: normal;
+}
+
+/* Cascadia Code NF, always upright: pandoc marks comments and some tokens
+   as italic, which a ligature Nerd Font renders badly. */
+code,
+kbd,
+samp {
   font-family: var(--font-mono);
   font-size: 0.85em;
+  font-style: normal;
+  font-variant-ligatures: contextual;
   background: var(--code-bg);
-  padding: 0.15em 0.4em;
-  border-radius: 6px;
-  font-variant-ligatures: none;
+  color: var(--fg);
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
 }
 
 code:not(.sourceCode) {
@@ -276,14 +342,14 @@ pre {
   max-width: 100%;
   box-sizing: border-box;
   background: var(--code-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
-  margin: 1.75rem 0;
+  border-radius: var(--radius);
+  padding: 1em;
+  margin: 1.5em 0;
   overflow-x: auto;
   overflow-y: hidden;
-  font-size: 0.875rem;
-  line-height: 1.6;
+  font-size: 0.9em;
+  line-height: 1.4;
+  font-style: normal;
 }
 
 div.sourceCode {
@@ -308,6 +374,7 @@ pre code {
   background: none;
   padding: 0;
   font-size: 1em;
+  border-radius: 0;
 }
 
 /* Tables. pandoc-table-cell-clamp.lua wraps every table in
@@ -319,7 +386,7 @@ pre code {
   /* Bleeds into the page gutter so a wide table has more room before it has
      to scroll. Stays inside the body padding, so no page-level scrollbar. */
   --table-bleed: 1.25rem;
-  margin: 1.75rem calc(-1 * var(--table-bleed));
+  margin: 1.5em calc(-1 * var(--table-bleed));
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
@@ -337,7 +404,7 @@ table {
   table-layout: auto;
   border-collapse: collapse;
   margin: 0;
-  font-size: 0.9em;
+  font-size: 0.95em;
 }
 
 /* Pandoc writes equal <col style="width: N%"> on pipe tables, which gives
@@ -347,22 +414,23 @@ col {
 }
 
 thead {
-  color: var(--heading);
+  color: var(--accent);
 }
 
 th, td {
   /* Cap how wide a single column can get so one long paragraph cannot
      stretch its row into a second screen of scrolling. */
   max-width: var(--table-col, 20rem);
-  border-bottom: 1px solid var(--border);
-  padding: 0.55rem 0.65rem;
+  padding: 0.5em 0.75em;
   text-align: left;
   vertical-align: top;
+  border-bottom: 1px solid var(--border);
 }
 
 th {
+  color: var(--accent);
   font-weight: 600;
-  border-bottom: 1px solid var(--accent-rule);
+  border-bottom: 2px solid var(--accent);
   white-space: normal;
   overflow-wrap: normal;
 }
@@ -386,28 +454,25 @@ th > .td-clamp {
 }
 
 ul, ol {
-  padding-left: 1.5rem;
-  margin: 0.85rem 0;
+  padding-left: 1.4em;
+  margin: 0 0 1em;
 }
 
 li {
-  margin: 0.35rem 0;
-}
-
-li > ul, li > ol {
-  margin: 0.25rem 0;
+  margin-bottom: 0.4em;
 }
 
 li::marker {
-  color: var(--muted);
+  color: var(--accent);
+}
+
+li > ul, li > ol {
+  margin: 0.25em 0;
 }
 
 img {
   max-width: 100%;
   height: auto;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
 }
 
 mjx-container {
@@ -419,9 +484,9 @@ mjx-container {
 mjx-container[display="true"] {
   background: var(--math-bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: 0.9rem 1rem;
-  margin: 1.75rem 0;
+  margin: 1.5em 0;
   overflow-x: auto;
 }
 
@@ -431,11 +496,11 @@ mjx-container:not([display="true"]) {
 
 .mermaid {
   text-align: center;
-  margin: 1.75rem 0;
+  margin: 1.5em 0;
   padding: 1.25rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius);
 }
 
 .mermaid svg {
@@ -454,12 +519,13 @@ sub, sup {
 
 /* pandoc --toc table of contents: inline card on narrow screens */
 #TOC {
+  font-family: var(--font-sans);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
-  margin: 0.5rem 0 2.5rem;
-  font-size: 0.92em;
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin: 0.5rem 0 2.5em;
+  font-size: 0.85em;
   line-height: 1.5;
 }
 
@@ -468,9 +534,9 @@ sub, sup {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   color: var(--muted);
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.6em;
 }
 
 #TOC ul {
@@ -490,7 +556,7 @@ sub, sup {
 
 #TOC a {
   color: var(--fg);
-  text-decoration: none;
+  border-bottom: none;
 }
 
 #TOC a:hover {
@@ -507,7 +573,7 @@ sub, sup {
        clear space between the card and the reading column. */
     --toc-width: 15rem;
     --toc-gap: 2rem;
-    --toc-box: calc(var(--toc-width) + 2.5rem);
+    --toc-box: calc(var(--toc-width) + 2.4rem);
   }
 
   /* Keep the table strip inside the reading column here: the gap that keeps
@@ -529,31 +595,32 @@ sub, sup {
     max-height: calc(100vh - 4rem);
     overflow-y: auto;
     margin: 0;
-    padding: 1rem 1.25rem;
+    padding: 1rem 1.2rem;
     background: var(--surface);
     background: color-mix(in srgb, var(--surface) 82%, transparent);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius);
     box-shadow: var(--shadow);
-    font-size: 0.875em;
+    font-size: 0.85em;
     z-index: 50;
   }
 
   #TOC h1 {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.75em;
   }
 }
 
 /* Pandoc/Skylighting token classes. These cover programming languages,
-   scripts, data formats, and markup supported by Pandoc. */
+   scripts, data formats, and markup supported by Pandoc. Upright only:
+   the mono face stays roman so it renders predictably. */
 .sourceCode .al,
 .sourceCode .er { color: var(--syn-op); font-weight: 600; } /* alert, error */
 .sourceCode .an,
 .sourceCode .co,
 .sourceCode .cv,
-.sourceCode .do { color: var(--syn-co); font-style: italic; } /* comments, docs */
+.sourceCode .do { color: var(--syn-co); font-style: normal; } /* comments, docs */
 .sourceCode .at { color: var(--syn-at); } /* attribute */
 .sourceCode .bn,
 .sourceCode .dv,
@@ -569,7 +636,7 @@ sub, sup {
 .sourceCode .fu { color: var(--syn-fu); } /* function or YAML key */
 .sourceCode .im,
 .sourceCode .pp { color: var(--syn-bu); } /* import, preprocessor */
-.sourceCode .in { color: var(--syn-dt); font-style: italic; } /* information */
+.sourceCode .in { color: var(--syn-dt); font-style: normal; } /* information */
 .sourceCode .op { color: var(--syn-op); } /* operator */
 .sourceCode .ot { color: var(--syn-dt); } /* other */
 .sourceCode .ss,
@@ -577,6 +644,14 @@ sub, sup {
 .sourceCode .vs { color: var(--syn-st); } /* strings */
 .sourceCode .va { color: var(--syn-va); } /* variable */
 .sourceCode .wa { color: var(--syn-dv); font-weight: 600; } /* warning */
+
+/* Pandoc's own stylesheet marks several token classes italic (comments,
+   annotations, warnings). The mono face stays upright no matter which
+   pandoc version generated the page. */
+code span,
+pre code {
+  font-style: normal !important;
+}
 
 /* Reading progress bar (scroll-driven; browsers without support skip it). */
 @supports (animation-timeline: scroll()) {
@@ -638,10 +713,27 @@ sub, sup {
 }
 
 @media print {
+  :root {
+    --bg: #ffffff;
+    --fg: #000000;
+    --heading: #000000;
+    --accent: #c85000;
+    --accent-soft: #c85000;
+    --muted: #333333;
+    --subtle: #666666;
+    --border: #999999;
+    --surface: #f5f5f5;
+    --code-bg: #f0f0f0;
+    color-scheme: light only;
+  }
+
+  html {
+    font-size: 11pt;
+  }
+
   body {
     max-width: none;
     padding: 0;
-    font-size: 11pt;
     background: #ffffff;
     color: #000000;
   }
@@ -654,9 +746,18 @@ sub, sup {
     color: #000000;
   }
 
+  h2 {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 1.1rem;
+    margin-top: 1.5em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid var(--subtle);
+  }
+
   a {
-    text-decoration: none;
-    color: #000000;
+    color: inherit;
+    border-bottom: none;
   }
 
   #TOC {
@@ -667,9 +768,19 @@ sub, sup {
     background: none;
     border: none;
     box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
-  pre, mjx-container[display="true"], .mermaid, img, blockquote {
+  blockquote {
+    page-break-inside: avoid;
+  }
+
+  h2, h3 {
+    page-break-after: avoid;
+  }
+
+  pre, mjx-container[display="true"], .mermaid, blockquote {
     background: none;
     border: none;
     box-shadow: none;
